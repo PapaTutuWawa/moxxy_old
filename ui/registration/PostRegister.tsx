@@ -53,7 +53,10 @@ export default class PostRegisterComponent extends React.Component {
                 <TouchableOpacity onPress={() => {}}>
                     <View style={{ flexDirection: "row" }}>
                             <View style={{ marginLeft: 5, alignSelf: "center", flexDirection: "row" }}>
-                                <Avatar rounded size="medium" overlayContainerStyle={{backgroundColor: 'gray'}} title={this.username[0]} />
+                                <Avatar rounded size="medium" overlayContainerStyle={{backgroundColor: 'gray'}} title={this.username[0]}>
+                                    {/* TODO: Maybe work on the size of the icon */}
+                                    <Avatar.Accessory type="font-awesome" name="pencil" color="white" size={16}/>
+                                </Avatar>
                             </View>
                             <View>
                                 <Text h4 style={{ color: "white", marginLeft: 10 }}>{this.username}</Text>
