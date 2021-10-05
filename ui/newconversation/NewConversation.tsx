@@ -33,7 +33,6 @@ function renderGroupchatItem({item}) {
 
 function ContactList(props: any) {
     const navigation = useNavigation();
-
 }
 
 function GroupchatList(props: any) {
@@ -127,6 +126,7 @@ class RosterListWrapper extends React.Component {
                             avatarUrl: item.avatarUrl,
                             jid: item.jid,
                             lastMessageText: "",
+                            lastMessageTimestamp: 0,
                             unreadMessagesCount: 0,
                             title: item.nickname ? item.nickname : item.jid.split("@")[0], // TODO: Check the split stuff
                             type: ConversationType.DIRECT

@@ -12,12 +12,12 @@ export default class Conversation extends Model {
     @field("unread_messages_count") unreadMessagesCount: number;
     @text("avatar_url") avatarUrl: string;
     @field("type") type: ConversationType;
-    // @field("last_message_timestamp") lastMessageTimestamp: number;
+    @field("last_message_timestamp") lastMessageTimestamp: number;
 
-    @writer async updateLastMessage (body: string, incrementUnread: boolean = false, callback: (conversation: Conversation) => void = () => {}) {
+    @writer async updateLastMessage (body: string, timestamp: number, incrementUnread: boolean = false, callback: (conversation: Conversation) => void = () => {}) {
         await this.update(conversation => {
             conversation.lastMessageText = body;
-            // conversation.lastMessageTimestamp = ???;
+            conversation.lastMessageTimestamp = timestamp
 
             if (incrementUnread)
                 conversation.unreadMessagesCount += 1;

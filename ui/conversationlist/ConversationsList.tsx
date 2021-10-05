@@ -8,21 +8,54 @@ import { Avatar, Text, Badge, Icon } from "react-native-elements";
 import { useNavigation } from "@react-navigation/native";
 import { PresenceType } from "../../data/Presence";
 import { User } from "../../data/User";
-import { badgeStatus } from "../helpers";
+import { badgeStatus, padNumber } from "../helpers";
 import Conversation from "../../app/model/conversation";
 import { Routes } from "../constants";
+
+/**
+ * Formats a timestamp for a last message to either "12h", if the time since the last message
+ * is less than 24h to the time of calling this function or "23.09", if greater.
+ */
+function lastMessageTimestampText(timestamp: number): string {
+    const now = Date.now();
+    const minuteDifference = (now - timestamp) / (1000 * 60);
+
+    if (minuteDifference > 60) {
+        const hourDifference = Math.round(minuteDifference / 60);
+        if (minuteDifference / 60 > 24) {
+            const date = new Date(timestamp);
+            const paddedDay = padNumber(date.getDay());
+            const paddedMonth = padNumber(date.getMonth());
+            return `${paddedDay}:${paddedMonth}`;
+        } else {
+            return `${hourDifference}h`
+        }
+    } else if (minuteDifference < 1) {
+        return `Just now`;
+    }
+
+    return `${Math.round(minuteDifference)} min`;
+}
 
 class ConversationsList extends Component {
     private navigation: any;
     private conversations: Conversation[];
+    private refreshTimer: number;
 
     constructor(props: any) {
         super(props);
 
         this.navigation = props.navigation;
         this.conversations = props.conversationsList;
+        this.refreshTimer = setTimeout(() => {
+            this.forceUpdate();
+        }, 60 * 1000);
     }
     
+    componentWillUnmount = () => {
+        clearTimeout(this.refreshTimer);
+    }
+
     onItemPress(conversation: Conversation) {
         // NOTE: setParams is required for the Header to receive the route params
         //this.navigation.setParams({ user: user });
@@ -56,13 +89,17 @@ class ConversationsList extends Component {
                             ellipsizeMode="tail"
                             numberOfLines={1}>{item.lastMessageText}</Text>
                     </View>
+
                     <View style={{ flex: 1 }} />
-                    { item.unreadMessagesCount > 0 && (
-                        <View style={{ justifyContent: "center", marginLeft: 10 }}>
-                            <Badge
-                                value={item.unreadMessagesCount} status="primary" />
-                        </View>
-                    )}
+                    <View style={{ paddingTop: 2 }}>
+                        {/* TODO: Calculate the time difference */}
+                        { item.lastMessageText !== "" && <Text style={{ color: "lightgray" }}>{lastMessageTimestampText(item.lastMessageTimestamp)}</Text> }
+                        { item.unreadMessagesCount > 0 && (
+                                <Badge
+                                    containerStyle={{ paddingTop: 5 }}
+                                    value={item.unreadMessagesCount} status="primary" />
+                        )}
+                    </View>
                 </TouchableOpacity>
         );
     }

@@ -9,6 +9,7 @@ export default appSchema({
                 { name: "title", type: "string" },
                 { name: "jid", type: "string" },
                 { name: "last_message_text", type: "string" },
+                { name: "last_message_timestamp", type: "number" },
                 { name: "last_message_oob", type: "boolean" },
                 { name: "unread_messages_count", type: "number" },
                 { name: "avatar_url", type: "string" },

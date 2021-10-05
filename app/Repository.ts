@@ -112,6 +112,7 @@ export default class AppRepository {
                 const hasConversation = await this.getConversationCache().hasConversation(bareJid);
                 // TODO: Use [Image], [File], [Video]
                 const lastMessageText = isOOB ? "[Image]" : msg.body;
+                const timestamp = new Date().getTime();
                 console.log(lastMessageText);
                 let promiseChain = new Promise((res, rej) => res(null));
                 if (!hasConversation)
@@ -127,6 +128,7 @@ export default class AppRepository {
                             title,
                             jid: bareJid,
                             lastMessageText,
+                            lastMessageTimestamp: timestamp,
                             lastMessageOOB: isOOB,
                             unreadMessagesCount: 1,
                             type: ConversationType.DIRECT,
@@ -138,7 +140,7 @@ export default class AppRepository {
                         body: msg.body,
                         sentIn: bareJid,
                         sent: false,
-                        timestamp: new Date().getTime(),
+                        timestamp: timestamp,
                         stanzaId: msg.stanzaIds["id"],
                         encryption: MessageEncryptionType.NONE, // TODO
                         oobUrl: isOOB ? msg.links[0].url : ""
@@ -149,7 +151,7 @@ export default class AppRepository {
                     // Prevent us from updating the list item twice
                     promiseChain.then(async () => {
                         console.log(`Open JID: ${this.getOpenConversationJid()}`);
-                        await this.getConversationCache().conversationNewMessageAdded(bareJid, lastMessageText, this.getOpenConversationJid() !== bareJid)
+                        await this.getConversationCache().conversationNewMessageAdded(bareJid, timestamp, lastMessageText, this.getOpenConversationJid() !== bareJid)
                     });
                 else
                     promiseChain.then(async () => {

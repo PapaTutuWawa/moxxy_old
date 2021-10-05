@@ -39,28 +39,6 @@ export default class ConversationCache extends EventEmitter {
         return this.cache[jid];
     };
 
-    public updateConversation = (jid: string, args: any): Promise<void> => {
-        return this.database.write(async () => {
-            const conversation = await this.database.get(Conversation.table).query(
-                Q.where("jid", jid)
-            ).fetch(); // TODO
-            await conversation[0].update(() => {
-                if ("lastMessageText" in args)
-                    conversation[0].lastMessageText = args.lastMessageText;
-                if ("lastMessageOOB" in args)
-                    conversation[0].lastMessageOOB = args.lastMessageOOB;
-                if ("unreadMessagesCountInc" in args) {
-                    conversation[0].unreadMessagesCount = conversation[0].unreadMessagesCount + args.unreadMessagesCountInc;
-                } else if ("unreadMessagesCount" in args) {
-                    conversation[0].unreadMessagesCount = args.unreadMessagedCount;
-                }
-            });
-
-            this.cache[jid] = conversation[0] as Conversation;
-            this.emit("conversationUpdated", conversation[0]);
-        });
-    }
-
     public markAsRead = async (jid: string) => {
         const conversation = await this.getConversationByJid(jid);
         conversation.markAsRead(conversation => {
@@ -76,9 +54,9 @@ export default class ConversationCache extends EventEmitter {
         }));
     }
 
-    public conversationNewMessageAdded = async (jid: string, messageBody: string, incrementUnread: boolean = false) => {
+    public conversationNewMessageAdded = async (jid: string, timestamp: number, messageBody: string, incrementUnread: boolean = false) => {
         const conversation = await this.getConversationByJid(jid);
-        conversation.updateLastMessage(messageBody, incrementUnread, (conversation: Conversation) => {
+        conversation.updateLastMessage(messageBody, timestamp, incrementUnread, (conversation: Conversation) => {
             this.cache[jid] = conversation;
             this.emit("conversationUpdated", conversation);
         });
@@ -109,6 +87,7 @@ export default class ConversationCache extends EventEmitter {
                 convo.title = conversation.title;
                 convo.jid = conversation.jid;
                 convo.lastMessageText = conversation.lastMessageText;
+                convo.lastMessageTimestamp = conversation.lastMessageTimestamp;
                 convo.lastMessageOOB = conversation.lastMessageOOB;
                 convo.unreadMessagesCount = conversation.unreadMessagesCount;
                 convo.avatarUrl = conversation.avatarUrl;
