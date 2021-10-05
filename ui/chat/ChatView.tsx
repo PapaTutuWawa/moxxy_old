@@ -159,10 +159,8 @@ class ChatView extends Component {
     renderBubble = ({item, index}) => {
         // TODO: Check if only visible items get immediately rendered. If so, send a read marker
         //       when rendered and not yet marked as read
-        const clampedNext = index + 1 >= this.state.messages.length ? this.state.messages.length - 1 : index + 1;
-        const clampedPrev = index - 1 < 0 ? 0 : index - 1;
-        const start = this.state.messages[clampedPrev].sent !== item.sent;
-        const end = this.state.messages[clampedNext].sent !== item.sent;
+        const start = index - 1 < 0 ? true : this.state.messages[index - 1].sent !== item.sent;
+        const end = index + 1 >= this.state.messages.length ? true : this.state.messages[index + 1].sent !== item.sent;
         const between = !start && !end;
 
         return ChatBubble(item, this.conversation.type, !end, between, start, end);
