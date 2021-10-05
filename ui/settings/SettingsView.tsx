@@ -1,13 +1,14 @@
 import React from "react";
-import { FlatList, View, Switch } from "react-native";
+import { FlatList, View, Switch, TouchableOpacity } from "react-native";
 import { Text } from "react-native-elements";
 import { material } from "react-native-typography";
+import { Routes } from "../constants";
 import { backgroundStyle } from "../helpers";
 
 interface Setting {
     title: string;
     description: string;
-    type: "switch";
+    type: "switch" | "dummy";
     defaultValue: any;
     value: any;
     onChange: (value: any) => void;
@@ -15,6 +16,7 @@ interface Setting {
 
 // TODO: Add sections => Use SectionList
 export default class SettingsView extends React.Component {
+    private navigation: any;
     private settings: Setting[] = [
         {
             title: "Send chat markers",
@@ -31,8 +33,24 @@ export default class SettingsView extends React.Component {
             defaultValue: true,
             value: true,
             onChange: (value: boolean) => {}
+        },
+        {
+            title: "Licenses",
+            description: "Show licenses of used libraries and projects",
+            type: "dummy",
+            defaultValue: null,
+            value: null,
+            onChange: (value: any) => {
+                this.navigation.navigate(Routes.LICENSES);
+            }
         }
     ];
+
+    constructor(props: any) {
+        super(props);
+
+        this.navigation = props.navigation;
+    }
 
     renderSettingControl(setting: Setting) {
         switch (setting.type) {
@@ -40,6 +58,8 @@ export default class SettingsView extends React.Component {
                 return (
                     <Switch value={setting.value} />
                 );
+            case "dummy":
+                return;
         }
     }
     
@@ -57,6 +77,17 @@ export default class SettingsView extends React.Component {
         );
     }
 
+    wrapSetting = ({ item }) => {
+        if (item.type === "dummy")
+            return (
+                <TouchableOpacity style={{ flex: 1 }} onPress={() => item.onChange(null)}>
+                    {this.renderSetting({ item })}
+                </TouchableOpacity>
+            );
+        
+        return this.renderSetting({ item });
+    }
+
     render() {
         return (
             <View style={{
@@ -65,7 +96,7 @@ export default class SettingsView extends React.Component {
             }}>
                 <FlatList
                     data={this.settings}
-                    renderItem={this.renderSetting} />
+                    renderItem={this.wrapSetting} />
             </View>
         );
     }

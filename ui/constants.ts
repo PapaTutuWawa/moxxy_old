@@ -6,8 +6,8 @@ export enum Routes {
     NEWCONVERSATION = "NewConversation",
     SETTINGS = "Settings",
     CONVERSATIONLIST = "ConversationsList",
-    // TODO: Unused
-    PRESTART = "PreStart"
+    PRESTART = "PreStart",
+    LICENSES = "Licenses"
 };
 
 export enum Corners {

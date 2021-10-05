@@ -18,37 +18,18 @@ import StartView from './ui/start/StartView';
 import { ChatViewWrapper, ChatViewHeaderComponentWrapper } from './ui/chat/ChatView';
 import ConversationsListView from './ui/conversationlist/ConversationsListView';
 import NewConversationView from './ui/newconversation/NewConversation';
+import PreStartView from './ui/prestart/PreStartView';
+import LicensesView from './ui/licenses/LicensesView';
 
 import { Routes } from "./ui/constants";
-import PreStartView from './ui/prestart/PreStartView';
 
 const Stack = createNativeStackNavigator();
 
-// TODO: Move the names of the routes into constants in a different file
 // TODO: ConversationList does not update when we have updated the lastMessageText
 // TODO: Set statusbar color depending on the color scheme
 const App = () => {
   //const isDarkMode = useColorScheme() === "dark";
   const isDarkMode = true;
-
-  // TODO: Manage this somehow
-  /*EncryptedStorage.getItem("account_data")
-    .then(data => {
-      if (!data)
-        return;
-
-      console.log("Got account data: " + data);
-      data = JSON.parse(data);
-      AppRepository.getInstance().connectXMPP({
-        jid: data.jid,
-        password: data.password
-      }, () => {
-        console.log("OK");
-        useNavigation().navigate("Roster");
-      });
-    }).catch(err => {
-      console.log(JSON.stringify(err));
-    });*/
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.darker }}>
@@ -58,7 +39,6 @@ const App = () => {
           <NavigationContainer>
             <Stack.Navigator initialRouteName={Routes.PRESTART}>
               <Stack.Screen
-                // TODO: Rename from "Roster" to "ConversationsList"
                 name={Routes.CONVERSATIONLIST}
                 options={{
                     title: "Moxxy",
@@ -99,7 +79,6 @@ const App = () => {
               <Stack.Screen
                 name={Routes.PROFILE}
                 options={({route}) => ({
-                  // TODO
                   title: route.params.title,
                   headerStyle: {
                     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter
@@ -143,6 +122,19 @@ const App = () => {
                   headerTintColor: isDarkMode ? Colors.lighter : Colors.darker
                 }}
                 component={SettingsView} />
+              <Stack.Screen
+                name={Routes.LICENSES}
+                options={{
+                  title: "Licenses",
+                  headerStyle: {
+                    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter
+                  },
+                  headerTitleStyle: {
+                    color: isDarkMode ? Colors.lighter : Colors.darker
+                  },
+                  headerTintColor: isDarkMode ? Colors.lighter : Colors.darker
+                }}
+                component={LicensesView} />
             </Stack.Navigator>
           </NavigationContainer>
         </ApplicationProvider>
