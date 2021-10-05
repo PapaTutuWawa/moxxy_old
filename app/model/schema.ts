@@ -26,6 +26,15 @@ export default appSchema({
                 { name: "encryption", type: "number" },
                 { name: "oob_url", type: "string" }
             ]
+        }),
+        tableSchema({
+            name: "roster_items",
+            columns: [
+                { name: "jid", type: "string" },
+                { name: "nickname", type: "string", isOptional: true },
+                { name: "avatar_url", type: "string" },
+                { name: "has_avatar", type: "boolean" }
+            ]
         })
     ]
 });

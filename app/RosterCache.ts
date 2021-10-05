@@ -1,16 +1,16 @@
 import { EventEmitter } from "events";
-import RosterItem from "./storage/rosteritem";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import * as XMPP from "stanza";
 import { AvatarCache } from "./AvatarCache";
+import { Database, Q } from "@nozbe/watermelondb";
+import RosterItem from "./model/rosteritem";
 
 // TODO: Don't request the avatars in getRoster to prevent blocking the roster loading
 export default class RosterCache extends EventEmitter {
     private cache: {[jid: string]: RosterItem};
     private loaded: boolean;
 
-    constructor(private avatarCache: AvatarCache, private client: XMPP.Agent) {
+    constructor(private database: Database) {
         super();
 
         this.cache = {};
@@ -18,15 +18,28 @@ export default class RosterCache extends EventEmitter {
     }
 
     public setRoster = async (items: XMPP.Stanzas.RosterItem[]) => {
-        const rosterItems: RosterItem[] = items.map(item => ({
-            jid: item.jid,
-            nickname: item.name ? item.name : undefined,
-            avatarUrl: ""
-        }));
+        if (!this.loaded)
+            await this.getRoster();
 
-        await AsyncStorage.setItem("account_roster", JSON.stringify(rosterItems));
+        const collection = this.database.get(RosterItem.table);
+        // TODO: What if we have local changes?
+        const batchWrites = items.map(item => {
+            if (!this.inRoster(item.jid))
+                return collection.prepareCreate((rosterItem: RosterItem) => {
+                    rosterItem.jid = item.jid;
+                    rosterItem.nickname = item.name;
+                    rosterItem.avatarUrl = "";
+                    rosterItem.hasAvatar = true;
 
-        this.emit("rosterSet", rosterItems);
+                    this.cache[item.jid] = rosterItem;
+                });
+        });
+
+        await this.database.write(async () => {
+            await this.database.batch(...batchWrites);
+        });
+
+        this.emit("rosterSet", Object.values(this.cache));
     }
 
     /**
@@ -38,7 +51,7 @@ export default class RosterCache extends EventEmitter {
     }
 
     // TODO: Check if in roster
-    public getRosterItem = async (bareJid: string): Promise<RosterItem> => {
+    public getRosterItemByJid = async (bareJid: string): Promise<RosterItem> => {
         if (!this.loaded)
             await this.getRoster();
 
@@ -50,30 +63,39 @@ export default class RosterCache extends EventEmitter {
         if (!this.inRoster(bareJid))
             return;
 
-        this.cache[bareJid].avatarUrl = avatarUrl;
-        await AsyncStorage.setItem("account_roster", JSON.stringify(Object.values(this.cache)));
+        const item = await this.getRosterItemByJid(bareJid);
+        await item.updateAvatarUrl(avatarUrl, rosterItem => {
+            this.cache[rosterItem.jid] = rosterItem;
 
-        this.emit("rosterItemUpdates", this.cache[bareJid]);
+            this.emit("rosterItemUpdated", rosterItem);
+        });
     }
+
+    public setNoAvatarForJid = async (bareJid: string) => {
+        // TODO: Check this
+        if (!this.inRoster(bareJid))
+            return;
+
+        const item = await this.getRosterItemByJid(bareJid);
+        await item.setNoAvatarUrl(rosterItem => {
+            this.cache[rosterItem.jid] = rosterItem;
+
+            this.emit("rosterItemUpdated", rosterItem);
+        });
+    }
+
 
     public getRoster = async (): Promise<RosterItem[]> => {
         if (!this.loaded) {
-            const data = await AsyncStorage.getItem("account_roster");
-            const rosterItems: any[] = data !== null ? JSON.parse(data) : [];
-            if (data !== null) {
-                for (const item of rosterItems) {
-                    // TODO: See TODO Above class
-                    const path = await this.avatarCache.getAvatar(this.client, item.jid);
-                    if (path)
-                        item.avatarUrl = `file://${path}`
-
-                    this.cache[item.jid] = item;
-                    console.log(`getRoster: Setting ${item.jid}`);
-                }
-            }
+            const items: RosterItem[] = await this.database.get(RosterItem.table)
+                .query()
+                .fetch() as RosterItem[];
+            items.forEach(item => {
+                this.cache[item.jid] = item;
+            });
 
             this.loaded = true;
-            return rosterItems;
+            return items;
         }
 
         return Object.values(this.cache);

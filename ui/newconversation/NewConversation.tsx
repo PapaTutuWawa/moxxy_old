@@ -9,7 +9,7 @@ import AppRepository from "../../app/Repository";
 import { ConversationType } from "../../data/Conversation";
 import { PresenceType } from "../../data/Presence";
 import { Routes } from "../constants";
-import RosterItem from "../../app/storage/rosteritem";
+import RosterItem from "../../app/model/rosteritem";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -81,7 +81,17 @@ class RosterListWrapper extends React.Component {
         };
 
         AppRepository.getInstance().getRosterCache().on("rosterSet", this.setRoster);
-        AppRepository.getInstance().getRosterCache().getRoster().then(this.setRoster);
+        AppRepository.getInstance().getRosterCache().on("rosterItemUpdated", this.onRosterItemUpdates);
+        AppRepository.getInstance().getRosterCache()
+            .getRoster()
+            .then(this.setRoster);
+    }
+
+    onRosterItemUpdates = (rosterItem: RosterItem) => {
+        this.setState({
+            roster: this.state.roster.map(item => item.jid === rosterItem.jid ? rosterItem : item),
+            key: this.state.key + 1
+        });
     }
 
     setRoster = (roster: RosterItem[]) => {
@@ -93,9 +103,16 @@ class RosterListWrapper extends React.Component {
 
     componentWillUnmount = () => {
         AppRepository.getInstance().getRosterCache().removeListener("rosterSet", this.setRoster);
+        AppRepository.getInstance().getRosterCache().on("rosterItemUpdated", this.onRosterItemUpdates);
     }
 
     renderRosterItem = (item: RosterItem) => {
+        if (item.hasAvatar && !item.avatarUrl) {
+            AppRepository.getInstance().requestAndSetAvatar(item.jid);
+        }
+
+        const name = item.nickname ? item.nickname : item.jid;
+        const avatarDisplayProps = item.avatarUrl ? {source: { uri: item.avatarUrl }} : {title: name[0]};
         return (
             <TouchableOpacity
                 onPress={async () => {
@@ -131,7 +148,7 @@ class RosterListWrapper extends React.Component {
                     flexDirection: "row"
                     }}>
                 <View style={{ marginLeft: 5, alignSelf: "center", flexDirection: "row" }}>
-                    <Avatar rounded size="medium" source={{ uri: item.avatarUrl }} />
+                    <Avatar rounded size="medium" {...avatarDisplayProps} />
                 </View>
                 <View>
                     {/* TODO: Make this split stuff nicer */}
@@ -150,7 +167,7 @@ class RosterListWrapper extends React.Component {
                     data={this.state.roster}
                     key={this.state.key}
                     renderItem={({item}) => this.renderRosterItem(item)}
-                    keyExtractor={item => item.jid} />
+                    keyExtractor={item => item.jid + item.avatarUrl + (item.nickname || "")} />
             </View>
         );
     }

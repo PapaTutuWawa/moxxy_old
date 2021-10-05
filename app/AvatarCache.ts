@@ -2,6 +2,7 @@ import * as XMPP from "stanza";
 import RNFS from "react-native-fs";
 import { getAvatar } from "../xmpp/avatar";
 import { EventEmitter } from "events";
+import Maybe from "./types/maybe";
 
 const AVATAR_CACHE_PATH = RNFS.CachesDirectoryPath + "/avatars/";
 
@@ -25,7 +26,8 @@ export class AvatarCache extends EventEmitter {
             // TODO: Check this
             // The folder probably does not exist
             await RNFS.mkdir(AVATAR_CACHE_PATH);
-            avatars = await RNFS.readDir(AVATAR_CACHE_PATH);
+            this.isInitialized = true;
+            return;
         }
         
         for (const avatar of avatars) {
@@ -35,6 +37,9 @@ export class AvatarCache extends EventEmitter {
     }
 
     public setAvatar = async (data: string, bareJid: string) => {
+        if (!this.isInitialized)
+            await this.loadAvatars();
+
         // TODO: Input sanitation?
         const path = AVATAR_CACHE_PATH + bareJid;
         await RNFS.writeFile(path, data, "base64");
@@ -44,19 +49,19 @@ export class AvatarCache extends EventEmitter {
         return path;
     }
 
-    public getAvatar = async (client: XMPP.Agent, bareJid: string): Promise<string | null> => {
+    public getAvatar = async (client: XMPP.Agent, bareJid: string): Promise<Maybe<string>> => {
         if (!this.isInitialized)
             await this.loadAvatars();
 
         if (bareJid in this.cache)
-            return this.cache[bareJid];
+            return new Maybe(this.cache[bareJid]);
         
         // TODO: Only request when we don't have it saved.
         // First we request it.
         const data = await getAvatar(client, bareJid);
         if (!data)
-            return null;
+            return new Maybe();
         
-        return await this.setAvatar(data.toString(), bareJid);
+        return new Maybe(await this.setAvatar(data.getValue().toString(), bareJid));
     }
 };

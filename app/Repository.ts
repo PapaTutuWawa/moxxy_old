@@ -18,8 +18,9 @@ import ConversationCache from "./ConversationCache";
 import { ConversationType } from "../data/Conversation";
 import DiscoCache from "./DiscoCache";
 import RosterCache from "./RosterCache";
-import { getAvatar } from "../xmpp/avatar";
 import { AvatarCache } from "./AvatarCache";
+import RosterItem from "./model/rosteritem";
+import { getAvatar } from "../xmpp/avatar";
 
 export default class AppRepository {
     private static instance: AppRepository;
@@ -117,7 +118,7 @@ export default class AppRepository {
                     promiseChain = promiseChain.then(async () => {
                         let title = bareJid.split("@")[0]; // TODO: Maybe make this a bit safer.
                         if (this.getRosterCache().inRoster(bareJid)) {
-                            const nickname = (await this.getRosterCache().getRosterItem(bareJid)).nickname;
+                            const nickname = (await this.getRosterCache().getRosterItemByJid(bareJid)).nickname;
                             if (nickname)
                                 title = nickname;
                         }
@@ -178,6 +179,14 @@ export default class AppRepository {
         });
     }
 
+    public requestAndSetAvatar = async (bareJid: string) => {
+        const data = await this.getAvatarCache().getAvatar(this.getXMPPClient(), bareJid);
+        if (!data.hasValue())
+            await this.getRosterCache().setNoAvatarForJid(bareJid);
+        else
+            await this.getRosterCache().updateRosterItemAvatarUrl(bareJid, `file://${data.getValue()}`);
+    }
+
     private openConversationJid: string = "";
     public getOpenConversationJid = () => this.openConversationJid;
     public setOpenConversationJid = (jid: string) => this.openConversationJid = jid;
@@ -207,7 +216,7 @@ export default class AppRepository {
     private rosterCache: RosterCache;
     public getRosterCache(): RosterCache {
         if (!this.rosterCache)
-            this.rosterCache = new RosterCache(this.getAvatarCache(), this.getXMPPClient());
+            this.rosterCache = new RosterCache(this.getDb());
         return this.rosterCache;
     }
 
@@ -236,7 +245,8 @@ export default class AppRepository {
                 adapter: this.getDbAdapter(),
                 modelClasses: [
                     Conversation,
-                    Message
+                    Message,
+                    RosterItem
                 ]
             });
         
