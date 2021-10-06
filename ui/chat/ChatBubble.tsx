@@ -68,13 +68,17 @@ function wrapContent(content: any, msg: Message) {
 /**
  * Compute style attributes for the "bottom bar" of a message bubble
  */
-function bubbleBottomStyle(msg: Message) {
+function bubbleBottomStyle(msg: Message, between: boolean, start: boolean, end: boolean) {
     switch (msg.getContentType()) {
         case MessageContentType.IMAGE:
             return {
                 position: "absolute",
-                bottom: 5,
-                right: 10,
+                paddingRight: 10,
+                paddingBottom: 3,
+                backgroundColor: "rgba(0, 0, 0, 0.7)",
+                borderBottomLeftRadius: !msg.sent && (between || start) && !(start && end) ? Corners.MESSGE_BUBBLE_GROUP : Corners.MESSAGE_BUBBLE_NORMAL,
+                borderBottomRightRadius: msg.sent && (between || start) && !(start && end)? Corners.MESSGE_BUBBLE_GROUP : Corners.MESSAGE_BUBBLE_NORMAL,
+                bottom: 0
             };
         default:
             return {
@@ -99,7 +103,7 @@ export default function ChatBubble(message: Message, type: ConversationType, clo
 
             <View style={{
                 flexDirection: "row",
-                ...bubbleBottomStyle(message)
+                ...bubbleBottomStyle(message, between, start, end)
             }}>
                 {
                     type === ConversationType.GROUPCHAT && (
