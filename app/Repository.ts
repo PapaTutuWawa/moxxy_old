@@ -151,7 +151,7 @@ export default class AppRepository {
                     // Prevent us from updating the list item twice
                     promiseChain.then(async () => {
                         console.log(`Open JID: ${this.getOpenConversationJid()}`);
-                        await this.getConversationCache().conversationNewMessageAdded(bareJid, timestamp, lastMessageText, this.getOpenConversationJid() !== bareJid)
+                        await this.getConversationCache().conversationNewMessageAdded(bareJid, timestamp, lastMessageText, isOOB, this.getOpenConversationJid() !== bareJid)
                     });
                 else
                     promiseChain.then(async () => {

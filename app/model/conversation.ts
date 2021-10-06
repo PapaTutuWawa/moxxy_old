@@ -14,10 +14,11 @@ export default class Conversation extends Model {
     @field("type") type: ConversationType;
     @field("last_message_timestamp") lastMessageTimestamp: number;
 
-    @writer async updateLastMessage (body: string, timestamp: number, incrementUnread: boolean = false, callback: (conversation: Conversation) => void = () => {}) {
+    @writer async updateLastMessage (body: string, timestamp: number, isOOB: boolean, incrementUnread: boolean = false, callback: (conversation: Conversation) => void = () => {}) {
         await this.update(conversation => {
             conversation.lastMessageText = body;
             conversation.lastMessageTimestamp = timestamp
+            conversation.lastMessageOOB = isOOB;
 
             if (incrementUnread)
                 conversation.unreadMessagesCount += 1;

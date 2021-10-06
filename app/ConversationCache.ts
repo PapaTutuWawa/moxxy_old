@@ -54,9 +54,9 @@ export default class ConversationCache extends EventEmitter {
         }));
     }
 
-    public conversationNewMessageAdded = async (jid: string, timestamp: number, messageBody: string, incrementUnread: boolean = false) => {
+    public conversationNewMessageAdded = async (jid: string, timestamp: number, messageBody: string, isOOB: boolean, incrementUnread: boolean = false) => {
         const conversation = await this.getConversationByJid(jid);
-        conversation.updateLastMessage(messageBody, timestamp, incrementUnread, (conversation: Conversation) => {
+        conversation.updateLastMessage(messageBody, timestamp, isOOB, incrementUnread, (conversation: Conversation) => {
             this.cache[jid] = conversation;
             this.emit("conversationUpdated", conversation);
         });
