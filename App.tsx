@@ -63,17 +63,7 @@ const App = () => {
               <Stack.Screen
                 name={Routes.CONVERSATION}
                 options={({route}) => ({
-                  headerTitle: (props) => {
-                    const navigation = useNavigation();
-                    return <ChatViewHeaderComponentWrapper navigation={navigation} conversationJid={route.params.conversationJid} />;
-                  },
-                  headerStyle: {
-                    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter
-                  },
-                  headerTitleStyle: {
-                    color: isDarkMode ? Colors.lighter : Colors.darker
-                  },
-                  headerTintColor: isDarkMode ? Colors.lighter : Colors.darker
+                  headerShown: false
                 })}
                 component={ChatViewWrapper} />
               <Stack.Screen

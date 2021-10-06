@@ -16,6 +16,7 @@ interface ConversationsViewState {
     key: number;
 };
 
+// TODO: Replace header bar with FlatHeader
 export default class ConversationsView extends Component {
     state: ConversationsViewState;
     private navigation: any;

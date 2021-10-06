@@ -173,6 +173,7 @@ class RosterListWrapper extends React.Component {
     }
 };
 
+// TODO: Replace header bar with FlatHeader
 export default class NewChatView extends React.Component {
     constructor(props: any) {
         super(props);

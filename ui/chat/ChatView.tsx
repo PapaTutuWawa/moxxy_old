@@ -19,6 +19,7 @@ import { MessageEncryptionType } from "../../data/Message";
 import Conversation from "../../app/model/conversation";
 import { Routes } from "../constants";
 import { material } from "react-native-typography";
+import FlatHeader from "../FlatHeader";
 
 interface ChatViewState {
     presence: PresenceType;
@@ -34,6 +35,7 @@ class ChatView extends Component {
     private navigation: any;
     private background: any
     private conversation: Conversation;
+    private conversationJid: string;
     private messageList: FlatList;
     // TODO
     private jumpToEnd: boolean;
@@ -55,9 +57,9 @@ class ChatView extends Component {
             key: 0
         };
 
-        const conversationJid = props.route.params.conversationJid;
+        this.conversationJid = props.route.params.conversationJid;
         AppRepository.getInstance().getConversationCache()
-            .getConversationByJid(conversationJid)
+            .getConversationByJid(this.conversationJid)
             .then(conversation => {
                 this.conversation = conversation;
             })
@@ -169,8 +171,26 @@ class ChatView extends Component {
 
     // TODO: Handle scroll position resetting when state.messages changes
     render() {
+        const title = this.conversation && this.conversation.title ? this.conversation.title : "";
+        const avatarDisplayProps = this.conversation && this.conversation.avatarUrl ? {source: { uri: this.conversation.avatarUrl }} : {title: this.conversationJid[0]};
+
         return (
             <View style={{ height: "100%", ...this.background }}>
+                <FlatHeader navigation={this.navigation}>
+                    <View style={{ alignSelf: "center", flex: 1 }}>
+                        <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => {}}>
+                            <View>
+                                <Avatar rounded size="medium" {...avatarDisplayProps} />
+                                { /*user.presence !== PresenceType.OFFLINE && (
+                                    <Badge status={badgeStatus(user.presence)} containerStyle={{ position: "absolute", top: 2, right: 2 }} />
+                                )*/}
+                            </View>
+                            <View style={{ marginLeft: 10, justifyContent: "center" }}>
+                                <Text style={[material.headlineWhite]}>{title}</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                </FlatHeader>
                 <FlatList
                     style={{ padding: 10 }}
                     data={this.state.messages}
@@ -274,5 +294,7 @@ export function ChatViewWrapper(props: any) {
     //const background = backgroundStyle(useColorScheme() === "dark");
     const background = backgroundStyle(true);
 
-    return <ChatView { ...props } background={background} navigation={navigation} />
+    return (
+            <ChatView { ...props } background={background} navigation={navigation} />
+    );
 }
