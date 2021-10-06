@@ -64,12 +64,8 @@ export default class ConversationsView extends Component {
     render() {
         return (
             <View style={{ height: "100%", ...backgroundStyle() }}>
-                <FlatHeader navigation={this.navigation} showBackButton={false}>
+                <FlatHeader navigation={this.navigation} showBackButton={false} title="Moxxy">
                     {/* TODO: Put own avatar in the FlatHeader which redirects to your own profile page */}
-                    <View style={{ justifyContent: "center", marginLeft: 10 }}>
-                        <Text style={[material.headlineWhite]}>Moxxy</Text>
-                    </View>
-                    
                     <View style={{ flex: 1}} />
                     <View style={{ justifyContent: "center", marginRight: 10 }}>
                         <TouchableOpacity

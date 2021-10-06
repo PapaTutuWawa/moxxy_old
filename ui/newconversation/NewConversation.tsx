@@ -1,73 +1,36 @@
 import React from "react";
 import { View, FlatList, TouchableOpacity } from "react-native";
 import { Text, Avatar } from "react-native-elements";
-import { useNavigation  } from "@react-navigation/native";
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { User } from "../../data/User";
 import { backgroundStyle, hack__bareJid } from "../helpers";
 import AppRepository from "../../app/Repository";
 import { ConversationType } from "../../data/Conversation";
 import { PresenceType } from "../../data/Presence";
 import { Routes } from "../constants";
 import RosterItem from "../../app/model/rosteritem";
+import FlatHeader from "../FlatHeader";
 
-const Tab = createMaterialTopTabNavigator();
-
-// TODO(groupchat)
-function renderGroupchatItem({item}) {
-    const navigation = useNavigation();
-
-    return (
-        <TouchableOpacity
-            onPress={() => {}}
-            style={{ width: "100%", padding: 10, marginTop: 5, flexDirection: "row" }}>
-            <View style={{ marginLeft: 5, alignSelf: "center", flexDirection: "row" }}>
-                <Avatar rounded size="medium" source={{ uri: item.avatarUrl }} />
-            </View>
-            <View>
-                <Text h4 style={{ color: "white", marginLeft: 10 }}>{item.roomName}</Text>
-            </View>
-        </TouchableOpacity>
-    );
-}
-
-function ContactList(props: any) {
-    const navigation = useNavigation();
-}
-
-function GroupchatList(props: any) {
-    return (
-        <View style={{ height: "100%", ...backgroundStyle(true) }}>
-            <FlatList
-                style={{ padding: 10 }}
-                data={props.groupchats}
-                renderItem={renderGroupchatItem}
-                keyExtractor={item => item.jid} />
-        </View>
-    );
-}
-
-
-function ContactListWrapper(roster: User[]) {
-    return (props: any) => {
-        return ContactList({ ...props, roster: roster });
-    };
-}
-
-function GroupchatListWrapper(groupchats: any[]) {
-    return (props: any) => {
-        return GroupchatList({ ...props, groupchats: groupchats });
-    };
-}
-
-interface RosterListWrapperState {
+interface NewChatViewState {
     roster: RosterItem[];
     key: number;
 };
 
-class RosterListWrapper extends React.Component {
-    state: RosterListWrapperState;
+// TODO: Maybe replace FlatList with a SectionList and sort everything alphabetically.
+//       This, or a searchbar
+// TODO: When adding a new contact, offer the option to enter a JID or scan a QR code that encodes an XMPP Uri
+export default class NewChatView extends React.Component {
+    state: NewChatViewState;
     private navigation: any;
+
+    private extraEntries = [
+        {
+            title: "New contact",
+            icon: {
+                type: "font-awesome",
+                name: "user-plus"
+            },
+            callback: () => {}
+        }
+    ];
 
     constructor(props: any) {
         super(props);
@@ -115,11 +78,16 @@ class RosterListWrapper extends React.Component {
         return (
             <TouchableOpacity
                 onPress={async () => {
-                    // TODO: This is broken
-                    /*if (AppRepository.getInstance().getConversationCache().hasConversation(item.jid)) {
-                        // TODO: Just open the conversation
+                    if (await AppRepository.getInstance().getConversationCache().hasConversation(item.jid)) {
+                        this.navigation.reset({
+                            index: 1,
+                            routes: [
+                                { name: Routes.CONVERSATIONLIST },
+                                { name: Routes.CONVERSATION, params: { conversationJid: item.jid } }
+                            ]
+                        });
                         return;
-                    }*/
+                    }
 
                     AppRepository.getInstance().getConversationCache()
                         .addConversation({
@@ -132,18 +100,18 @@ class RosterListWrapper extends React.Component {
                             type: ConversationType.DIRECT
                         }, (conversation) => {
                             this.navigation.reset({
-                                index: 0,
+                                index: 1,
                                 routes: [
-                                    // TODO: We're not being sent to the chat
                                     { name: Routes.CONVERSATIONLIST },
-                                    { name: Routes.CONVERSATIONLIST, params: { conversation } }
+                                    { name: Routes.CONVERSATION, params: { conversationJid: item.jid } }
                                 ]
                             });
                         });
                 }}
                 style={{
                     width: "100%",
-                    padding: 10,
+                    paddingLeft: 10,
+                    paddingRight: 10,
                     marginTop: 5,
                     flexDirection: "row"
                     }}>
@@ -159,33 +127,44 @@ class RosterListWrapper extends React.Component {
         );
     }
 
+    renderButtonItem = (title: string, icon: any, onPress: () => void) => {
+        return (
+            <TouchableOpacity
+                onPress={() => onPress()}
+                style={{
+                    width: "100%",
+                    padding: 10,
+                    marginTop: 5,
+                    flexDirection: "row"
+                    }}>
+                <View style={{ marginLeft: 5, alignSelf: "center", flexDirection: "row" }}>
+                    {/* TODO: Work on the color */}
+                    <Avatar rounded size="medium" containerStyle={{ backgroundColor: "#7f8c8d" }} icon={icon} />
+                </View>
+                <View style={{ justifyContent: "center" }}>
+                    <Text h4 style={{ color: "white", marginLeft: 10 }}>{title}</Text>
+                </View>
+            </TouchableOpacity>
+        );
+    }
+
+    listRenderWraper = ({item}) => {
+        if ("title" in item && "icon" in item)
+            return this.renderButtonItem(item.title, item.icon, item.callback);
+        
+        return this.renderRosterItem(item);
+    }
+
     render() {
         return (
             <View style={{ height: "100%", ...backgroundStyle(true) }}>
+                <FlatHeader navigation={this.navigation} title="Start new chat" />
                 <FlatList
-                    style={{ padding: 10 }}
-                    data={this.state.roster}
+                    data={this.extraEntries.concat(this.state.roster)}
                     key={this.state.key}
-                    renderItem={({item}) => this.renderRosterItem(item)}
-                    keyExtractor={item => item.jid + item.avatarUrl + (item.nickname || "")} />
+                    renderItem={item => this.listRenderWraper(item)}
+                    keyExtractor={item => (item.jid + item.avatarUrl + (item.nickname || "")) || item.title} />
             </View>
-        );
-    }
-};
-
-// TODO: Replace header bar with FlatHeader
-export default class NewChatView extends React.Component {
-    constructor(props: any) {
-        super(props);
-    }
-
-    render() {
-        // TODO: Maybe remove the navigator and *just* add a searchbar
-        return (
-            <Tab.Navigator>
-                <Tab.Screen name="Contacts" component={RosterListWrapper} />
-                <Tab.Screen name="Groupchats" component={GroupchatListWrapper([])}/>
-            </Tab.Navigator>
         );
     }
 };

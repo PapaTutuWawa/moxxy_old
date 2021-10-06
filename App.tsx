@@ -15,7 +15,7 @@ import { Icon } from 'react-native-elements';
 
 import ProfileView from './ui/chat/ProfileView';
 import StartView from './ui/start/StartView';
-import { ChatViewWrapper, ChatViewHeaderComponentWrapper } from './ui/chat/ChatView';
+import { ChatViewWrapper } from './ui/chat/ChatView';
 import ConversationsListView from './ui/conversationlist/ConversationsListView';
 import NewConversationView from './ui/newconversation/NewConversation';
 import PreStartView from './ui/prestart/PreStartView';
@@ -67,14 +67,7 @@ const App = () => {
               <Stack.Screen
                 name={Routes.NEWCONVERSATION}
                 options={{
-                  title: "Start new chat",
-                  headerStyle: {
-                    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter
-                  },
-                  headerTitleStyle: {
-                    color: isDarkMode ? Colors.lighter : Colors.darker
-                  },
-                  headerTintColor: isDarkMode ? Colors.lighter : Colors.darker
+                  headerShown: false
                 }}
                 component={NewConversationView} />
               <Stack.Screen

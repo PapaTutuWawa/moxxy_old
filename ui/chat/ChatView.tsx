@@ -242,55 +242,6 @@ class ChatView extends Component {
     }
 };
 
-interface ChatViewHeaderComponentProps {
-    conversationJid: string;
-}
-
-export class ChatViewHeaderComponentWrapper extends React.Component {
-    state: { conversation: Conversation | null};
-
-    private conversationJid: string;
-    private navigation: any;
-
-    constructor(props: ChatViewHeaderComponentProps) {
-        super(props);
-
-        this.conversationJid = props.conversationJid;
-        this.navigation = props.navigation;
-        this.state = {
-            conversation: null
-        };
-
-        AppRepository.getInstance().getConversationCache()
-            .getConversationByJid(this.conversationJid)
-            .then(conversation => {
-                this.setState({
-                    conversation
-                });
-            });
-    }
-
-    render() {
-        const avatarDisplayProps = this.state.conversation && this.state.conversation.avatarUrl ? {source: {uri: this.state.conversation.avatarUrl}} : {title: this.conversationJid[0].toUpperCase()};
-        const title = this.state.conversation && this.state.conversation.title ? this.state.conversation.title : this.conversationJid;
-        return  (
-            <View style={{ alignSelf: "center", flex: 1 }}>
-                <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => this.navigation.navigate(Routes.PROFILE, { conversationJid: this.conversationJid, title })}>
-                    <View>
-                        <Avatar rounded size="medium" {...avatarDisplayProps} />
-                        { /*user.presence !== PresenceType.OFFLINE && (
-                            <Badge status={badgeStatus(user.presence)} containerStyle={{ position: "absolute", top: 2, right: 2 }} />
-                        )*/}
-                    </View>
-                    <View style={{ marginLeft: 10, justifyContent: "center" }}>
-                        <Text style={[material.headlineWhite]}>{title}</Text>
-                    </View>
-                </TouchableOpacity>
-            </View>
-        );
-    }
-};
-
 export function ChatViewWrapper(props: any) {
     const navigation = useNavigation();
     //const background = backgroundStyle(useColorScheme() === "dark");
