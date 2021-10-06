@@ -78,13 +78,12 @@ class ConversationsList extends Component {
                     </View>
                     <View>
                         <Text h4 style={{ color: "white", marginLeft: 10 }}>{item.title}</Text>
-                        <Text
-                            // TODO: If the message is too long, then the badge will overflow
-                            style={{
+                        <Text style={{
                                 color: "lightgray",
                                 marginLeft: 10,
                                 flex: 1,
-                                fontWeight: item.lastMessageOOB ? "bold" : "normal"
+                                fontWeight: item.lastMessageOOB ? "bold" : "normal",
+                                maxWidth: 280
                             }}
                             ellipsizeMode="tail"
                             numberOfLines={1}>{item.lastMessageText}</Text>

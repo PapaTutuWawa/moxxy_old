@@ -81,11 +81,11 @@ function bubbleBottomStyle(msg: Message) {
                 paddingLeft: 10,
                 paddingRight: 10,
                 paddingBottom: 5,
-                paddingTop: 5
             };
     }
 }
 
+// TODO: If we have an image, put a gradient (or something similar) below the timestamp
 export default function ChatBubble(message: Message, type: ConversationType, closerTogether: boolean, between: boolean, start: boolean, end: boolean) {
     const date = new Date(message.timestamp);
     return (

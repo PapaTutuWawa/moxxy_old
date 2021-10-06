@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { View } from "react-native";
-import { FAB } from "react-native-elements";
+import { TouchableOpacity, View } from "react-native";
+import { FAB, Text } from "react-native-elements";
 
 import Conversation from "../../app/model/conversation";
 
@@ -10,13 +10,15 @@ import { PresenceType } from "../../data/Presence";
 import AppRepository from "../../app/Repository";
 import { User } from "../../data/User";
 import { Routes } from "../constants";
+import FlatHeader from "../FlatHeader";
+import { material } from "react-native-typography";
+import { Icon } from "@ui-kitten/components";
 
 interface ConversationsViewState {
     conversations: Conversation[];
     key: number;
 };
 
-// TODO: Replace header bar with FlatHeader
 export default class ConversationsView extends Component {
     state: ConversationsViewState;
     private navigation: any;
@@ -62,6 +64,20 @@ export default class ConversationsView extends Component {
     render() {
         return (
             <View style={{ height: "100%", ...backgroundStyle() }}>
+                <FlatHeader navigation={this.navigation} showBackButton={false}>
+                    {/* TODO: Put own avatar in the FlatHeader which redirects to your own profile page */}
+                    <View style={{ justifyContent: "center", marginLeft: 10 }}>
+                        <Text style={[material.headlineWhite]}>Moxxy</Text>
+                    </View>
+                    
+                    <View style={{ flex: 1}} />
+                    <View style={{ justifyContent: "center", marginRight: 10 }}>
+                        <TouchableOpacity
+                            onPress={() => this.navigation.navigate(Routes.SETTINGS)}>
+                                <Icon style={{ width: 28, height: 28 }} name="more-vertical" fill="#fff" />
+                        </TouchableOpacity>
+                    </View>
+                </FlatHeader>
                 <ConversationsList conversationsList={this.state.conversations} key={this.state.key} />
                 <FAB
                     placement="right" size="large" icon={{

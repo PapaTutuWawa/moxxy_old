@@ -114,6 +114,7 @@ class ChatView extends Component {
         if (this.state.currentText === "") return;
         
         const body = this.state.currentText;
+        const timestamp = new Date().getTime();
         const msg: Message = {
             body,
             sentIn: this.conversation.jid,
@@ -126,7 +127,8 @@ class ChatView extends Component {
         AppRepository.getInstance().getMessageCache()
             .addMessage(msg)
             .then(async () => {
-                await this.conversation.updateLastMessage(body, false);
+                // TODO: OOB
+                await this.conversation.updateLastMessage(body, timestamp, false, false);
             });
         AppRepository.getInstance().getXMPPClient()
             .sendMessage({
@@ -178,7 +180,7 @@ class ChatView extends Component {
             <View style={{ height: "100%", ...this.background }}>
                 <FlatHeader navigation={this.navigation}>
                     <View style={{ alignSelf: "center", flex: 1 }}>
-                        <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => {}}>
+                        <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => this.navigation.navigate(Routes.PROFILE, { conversationJid: this.conversationJid })}>
                             <View>
                                 <Avatar rounded size="medium" {...avatarDisplayProps} />
                                 { /*user.presence !== PresenceType.OFFLINE && (

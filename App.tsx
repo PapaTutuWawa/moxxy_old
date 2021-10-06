@@ -41,42 +41,19 @@ const App = () => {
               <Stack.Screen
                 name={Routes.CONVERSATIONLIST}
                 options={{
-                    title: "Moxxy",
-                    headerStyle: {
-                      backgroundColor: isDarkMode ? Colors.darker : Colors.lighter
-                    },
-                    headerTitleStyle: {
-                      color: isDarkMode ? Colors.lighter : Colors.darker
-                    },
-                    headerTintColor: isDarkMode ? Colors.lighter : Colors.darker,
-                    headerRight: () => {
-                      const navigation = useNavigation();
-                      return (
-                        <TouchableOpacity
-                          onPress={() => navigation.navigate(Routes.SETTINGS)}>
-                            <Icon name="settings" color="#fff" />
-                        </TouchableOpacity>
-                      );
-                    }
+                  headerShown: false
                 }}
                 component={ConversationsListView} />
               <Stack.Screen
                 name={Routes.CONVERSATION}
-                options={({route}) => ({
+                options={{
                   headerShown: false
-                })}
+                }}
                 component={ChatViewWrapper} />
               <Stack.Screen
                 name={Routes.PROFILE}
                 options={({route}) => ({
-                  title: route.params.title,
-                  headerStyle: {
-                    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter
-                  },
-                  headerTitleStyle: {
-                    color: isDarkMode ? Colors.lighter : Colors.darker
-                  },
-                  headerTintColor: isDarkMode ? Colors.lighter : Colors.darker
+                  headerShown: false
                 })}
                 component={ProfileView} />
               <Stack.Screen
