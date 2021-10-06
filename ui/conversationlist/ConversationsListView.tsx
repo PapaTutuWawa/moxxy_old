@@ -8,7 +8,6 @@ import { backgroundStyle } from "../helpers";
 import ConversationsList from "./ConversationsList";
 import { PresenceType } from "../../data/Presence";
 import AppRepository from "../../app/Repository";
-import { User } from "../../data/User";
 import { Routes } from "../constants";
 import FlatHeader from "../FlatHeader";
 import { material } from "react-native-typography";

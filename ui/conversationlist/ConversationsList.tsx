@@ -7,7 +7,6 @@ import {
 import { Avatar, Text, Badge, Icon } from "react-native-elements";
 import { useNavigation } from "@react-navigation/native";
 import { PresenceType } from "../../data/Presence";
-import { User } from "../../data/User";
 import { badgeStatus, padNumber } from "../helpers";
 import Conversation from "../../app/model/conversation";
 import { Routes } from "../constants";
@@ -57,8 +56,6 @@ class ConversationsList extends Component {
     }
 
     onItemPress(conversation: Conversation) {
-        // NOTE: setParams is required for the Header to receive the route params
-        //this.navigation.setParams({ user: user });
         this.navigation.navigate(Routes.CONVERSATION, { conversationJid: conversation.jid });
     };
 

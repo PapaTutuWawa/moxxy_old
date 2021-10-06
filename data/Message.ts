@@ -1,5 +1,3 @@
-import { GroupchatMember, User } from "./User";
-
 enum MessageType {
     MESSAGE_CHAT,
     MESSAGE_GROUPCHAT
