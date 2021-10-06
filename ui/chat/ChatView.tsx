@@ -18,6 +18,7 @@ import { uuid } from "stanza/Utils";
 import { MessageEncryptionType } from "../../data/Message";
 import Conversation from "../../app/model/conversation";
 import { Routes } from "../constants";
+import { material } from "react-native-typography";
 
 interface ChatViewState {
     presence: PresenceType;
@@ -260,7 +261,7 @@ export class ChatViewHeaderComponentWrapper extends React.Component {
                         )*/}
                     </View>
                     <View style={{ marginLeft: 10, justifyContent: "center" }}>
-                        <Text h4 style={{ color: "white" }}>{title}</Text>
+                        <Text style={[material.headlineWhite]}>{title}</Text>
                     </View>
                 </TouchableOpacity>
             </View>

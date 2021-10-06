@@ -1,6 +1,6 @@
 import { Model } from "@nozbe/watermelondb";
 import { field, text, writer } from "@nozbe/watermelondb/decorators";
-import { MessageEncryptionType } from "../../data/Message";
+import { MessageContentType, MessageEncryptionType } from "../../data/Message";
 
 export default class Message extends Model {
     static table = "messages";
@@ -21,5 +21,16 @@ export default class Message extends Model {
      */
     isOOB = (): boolean => {
         return this.oobUrl && this.oobUrl === this.body;
+    }
+
+    getContentType = (): MessageContentType => {
+        if (this.isOOB()) {
+            if (this.oobUrl.endsWith(".png") || this.oobUrl.endsWith(".jpg"))
+                return MessageContentType.IMAGE;
+            else
+                return MessageContentType.FILE;
+        }
+
+        return MessageContentType.TEXT;
     }
 };

@@ -8,34 +8,43 @@ import Message from "../../app/model/message";
 import GenericBubble from "./Bubble";
 import { ConversationType } from "../../data/Conversation";
 import { padNumber } from "../../ui/helpers";
+import { Corners } from "../constants";
 
-function renderMessageContent(message: Message) {
+function getCornerRadiusStyle(sent: boolean, start: boolean, end: boolean, between: boolean) {
+    return {
+        borderTopLeftRadius: !sent && (between || end) && !(start && end) ? Corners.MESSGE_BUBBLE_GROUP : Corners.MESSAGE_BUBBLE_NORMAL,
+        borderTopRightRadius: sent && (between || end) && !(start && end) ? Corners.MESSGE_BUBBLE_GROUP : Corners.MESSAGE_BUBBLE_NORMAL,
+        borderBottomLeftRadius: !sent && (between || start) && !(start && end) ? Corners.MESSGE_BUBBLE_GROUP : Corners.MESSAGE_BUBBLE_NORMAL,
+        borderBottomRightRadius: sent && (between || start) && !(start && end)? Corners.MESSGE_BUBBLE_GROUP : Corners.MESSAGE_BUBBLE_NORMAL,
+    };
+}
+
+function renderMessageContent(message: Message, start: boolean, end: boolean, between: boolean) {
     if (message.isOOB()) {
         // Render as Image
         // TODO: Read the image URI from some cache
         // TODO: Handle also videos and generic files
         // TODO: Only accept HTTPS URLs
+        // TODO: Use message.getContentType()
         return (
             <Image
                 source={{ uri: message.oobUrl }}
                 resizeMode="cover"
                 style={{
+                    ...getCornerRadiusStyle(message.sent, start, end, between),
                     height: 200,
                     width: 200,
-                    borderTopRightRadius: 10,
-                    borderTopLeftRadius: 10,
                 }} />
         );
     } else {
         // Just render the body
         return (
             <View style={{
-                borderTopRightRadius: 15,
-                borderTopLeftRadius: 15,
+                ...getCornerRadiusStyle(message.sent, start, end, between),
                 paddingLeft: 10,
                 paddingRight: 10,
                 paddingTop: 5
-                }}>
+            }}>
                 <Text style={{ color: "white" }}>{message.body}</Text>
             </View>
         );
@@ -56,6 +65,27 @@ function wrapContent(content: any, msg: Message) {
     }
 }
 
+/**
+ * Compute style attributes for the "bottom bar" of a message bubble
+ */
+function bubbleBottomStyle(msg: Message) {
+    switch (msg.getContentType()) {
+        case MessageContentType.IMAGE:
+            return {
+                position: "absolute",
+                bottom: 5,
+                right: 10,
+            };
+        default:
+            return {
+                paddingLeft: 10,
+                paddingRight: 10,
+                paddingBottom: 5,
+                paddingTop: 5
+            };
+    }
+}
+
 export default function ChatBubble(message: Message, type: ConversationType, closerTogether: boolean, between: boolean, start: boolean, end: boolean) {
     const date = new Date(message.timestamp);
     return (
@@ -65,14 +95,11 @@ export default function ChatBubble(message: Message, type: ConversationType, clo
             between={between}
             start={start}
             end={end}>
-            {wrapContent(renderMessageContent(message), message)}
+            {wrapContent(renderMessageContent(message, start, end, between), message)}
 
             <View style={{
                 flexDirection: "row",
-                paddingLeft: 10,
-                paddingRight: 10,
-                paddingBottom: 5,
-                paddingTop: 5
+                ...bubbleBottomStyle(message)
             }}>
                 {
                     type === ConversationType.GROUPCHAT && (
@@ -88,7 +115,6 @@ export default function ChatBubble(message: Message, type: ConversationType, clo
                 <View style={{ flex: 1}} />
                 <Text style={{
                     color: "darkgray"
-                    // TODO: Pad the values to 9:04, instead of 9:4
                 }}>{`${date.getHours()}:${padNumber(date.getMinutes())}`}</Text>
 
                 {
