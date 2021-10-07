@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import {
     FlatList,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 import { Avatar, Text, Badge, Icon } from "react-native-elements";
 import { useNavigation } from "@react-navigation/native";
@@ -11,6 +11,7 @@ import { badgeStatus, padNumber } from "../helpers";
 import Conversation from "../../app/model/conversation";
 import { Routes } from "../constants";
 import AppRepository from "../../app/Repository";
+import { material } from "react-native-typography";
 
 /**
  * Formats a timestamp for a last message to either "12h", if the time since the last message
@@ -81,7 +82,7 @@ class ConversationsList extends Component {
                         )*/}
                     </View>
                     <View>
-                        <Text h4 style={{ color: "white", marginLeft: 10 }}>{item.title}</Text>
+                        <Text style={[material.headlineWhite, { marginLeft: 10 }]}>{item.title}</Text>
                         <Text style={{
                                 color: "lightgray",
                                 marginLeft: 10,
@@ -95,7 +96,6 @@ class ConversationsList extends Component {
 
                     <View style={{ flex: 1 }} />
                     <View style={{ paddingTop: 2 }}>
-                        {/* TODO: Calculate the time difference */}
                         { item.lastMessageText !== "" && <Text style={{ color: "lightgray" }}>{lastMessageTimestampText(item.lastMessageTimestamp)}</Text> }
                         { item.unreadMessagesCount > 0 && (
                                 <Badge
