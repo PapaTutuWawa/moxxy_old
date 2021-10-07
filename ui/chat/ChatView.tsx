@@ -31,7 +31,6 @@ interface ChatViewState {
 
 // TODO: Add "date pills" between days
 // TODO: unreadCount does not get updated if List cannot scroll if not enough messages are present
-// TODO: Use FlatList's ListEmptyComponent to show something when there are not messages yet
 class ChatView extends Component {
     state: ChatViewState;
     private navigation: any;
@@ -178,6 +177,20 @@ class ChatView extends Component {
         return ChatBubble(item, this.conversation.type, !end, between, start, end);
     }
 
+    renderEmptyList = () => {
+        const avatarDisplayProps = this.conversation && this.conversation.avatarUrl ? {source: { uri: this.conversation.avatarUrl }} : {title: this.conversationJid[0]};
+        return (
+            <View>
+                <View style={{ flexDirection: "row", justifyContent: "center" }}>
+                    <Avatar rounded size="xlarge" {...avatarDisplayProps} />
+                </View>
+                <View style={{ flexDirection: "row", justifyContent: "center" }}>
+                    <Text style={[material.headlineWhite]}>No messages yet...</Text>
+                </View>
+            </View>
+        );
+    }
+
     // TODO: Handle scroll position resetting when state.messages changes
     render() {
         if (this.conversation)
@@ -195,7 +208,7 @@ class ChatView extends Component {
                     <View style={{ alignSelf: "center", flex: 1 }}>
                         <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => this.navigation.navigate(Routes.PROFILE, { conversationJid: this.conversationJid })}>
                             <View>
-                                <Avatar rounded size="medium" {...avatarDisplayProps} />
+                                <Avatar rounded size="small" {...avatarDisplayProps} />
                                 { /*user.presence !== PresenceType.OFFLINE && (
                                     <Badge status={badgeStatus(user.presence)} containerStyle={{ position: "absolute", top: 2, right: 2 }} />
                                 )*/}
@@ -214,6 +227,7 @@ class ChatView extends Component {
                     showsVerticalScrollIndicator={false}
                     ref={ref => this.messageList = ref}
                     key={this.state.key}
+                    ListEmptyComponent={this.renderEmptyList()}
                     // TODO: Begin
                     onContentSizeChange={() => this.onListLayoutChange()}
                     onLayout={() => this.onListLayoutChange()}
