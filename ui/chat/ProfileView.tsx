@@ -45,24 +45,28 @@ export default class ConversationProfileView extends React.Component {
     renderConversation = () => {
         return (
             <>
-                <FlatHeader navigation={this.navigation} />
-                <View style={{ flexDirection: "row", padding: 15 }}>
-                    <Image
-                        source={{ uri: this.state.conversation.avatarUrl}}
-                        resizeMode="cover"
-                        style={{
-                            height: 150,
-                            width: 150,
-                            borderTopRightRadius: 75,
-                            borderTopLeftRadius: 75,
-                            borderBottomLeftRadius: 75,
-                            borderBottomRightRadius: 75
-                        }} />
-
-                    <View style={{ paddingLeft: 10 }}>
-                        <Text style={material.headlineWhite}>{this.state.conversation.title}</Text>
-                        <Text style={material.body2White}>{this.state.conversation.jid}</Text>
+                <View style={{ flexDirection: "row" }}>
+                    <FlatHeader navigation={this.navigation} fullWidth={false} />
+                    <View style={{ flexDirection: "row", justifyContent: "center", width: "100%", paddingTop: 10 }}>
+                        <Image
+                            source={{ uri: this.state.conversation.avatarUrl}}
+                            resizeMode="cover"
+                            style={{
+                                height: 160,
+                                width: 160,
+                                borderTopRightRadius: 75,
+                                borderTopLeftRadius: 75,
+                                borderBottomLeftRadius: 75,
+                                borderBottomRightRadius: 75
+                            }} />
                     </View>
+                </View>
+
+                <View style={{ flexDirection: "row", justifyContent: "center"}}>  
+                    <Text style={material.headlineWhite}>{this.state.conversation.title}</Text>
+                </View>
+                <View style={{ flexDirection: "row", justifyContent: "center" }}>  
+                    <Text style={material.subheadingWhite}>{this.state.conversation.jid}</Text>
                 </View>
             </>
         );

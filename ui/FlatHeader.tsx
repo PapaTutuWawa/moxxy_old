@@ -8,12 +8,14 @@ import { backgroundStyle } from "./helpers";
 interface FlatHeaderProps {
     navigation: any;
     showBackButton?: boolean;
+    fullWidth?: boolean;
     title?: string;
 }
 
 export default class FlatHeader extends React.Component {
     private navigation: any;
     private showBackButton: boolean;
+    private fullWidth: boolean;
     private title: string;
 
     constructor(props: FlatHeaderProps) {
@@ -21,12 +23,14 @@ export default class FlatHeader extends React.Component {
 
         this.navigation = props.navigation;
         this.showBackButton = "showBackButton" in props ? props.showBackButton : true;
+        this.fullWidth = "fullWidth" in props ? props.fullWidth : true;
         this.title = props.title || null;
     }
 
     render() {
         return (
             <View style={{
+                ...(!this.fullWidth ? { position: "absolute", top: 0, left: 0 }: {}),
                 width: "100%",
                 height: 55,
                 flexDirection: "row",

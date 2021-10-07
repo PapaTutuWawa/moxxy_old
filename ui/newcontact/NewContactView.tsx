@@ -1,7 +1,7 @@
 import { Input } from "@ui-kitten/components";
-import { Button } from "react-native-elements";
+import { Button, Icon } from "react-native-elements";
 import React from "react";
-import { View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import FlatHeader from "../FlatHeader";
 import { backgroundStyle } from "../helpers";
 import AppRepository from "../../app/Repository";
@@ -74,6 +74,15 @@ export default class NewContactView extends React.Component {
             });
     }
 
+    // TODO: Find a library to decode QR codes and detect both xmpp:user@server and user@server
+    renderQRIcon = (props: any) => {
+        return (
+            <TouchableOpacity onPress={() => {}}>
+                <Icon name="qr-code" type="ionicon" color="#ffffff" />
+            </TouchableOpacity>
+        );
+    }
+
     render() {
         return (
             <View style={{ height: "100%", ...backgroundStyle(true) }}>
@@ -86,7 +95,8 @@ export default class NewContactView extends React.Component {
                         placeholder="XMPP-Address"
                         value={this.state.jid}
                         disabled={this.state.waiting}
-                        onChangeText={this.updateJid}/>
+                        onChangeText={this.updateJid}
+                        accessoryRight={this.renderQRIcon} />
                 </View>
 
                 {/* TODO: The button is not long enough */}
