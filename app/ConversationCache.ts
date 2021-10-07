@@ -49,9 +49,15 @@ export default class ConversationCache extends EventEmitter {
 
     public updateAvatarUrl = async (jid: string, url: string) => {
         const conversation = await this.getConversationByJid(jid);
-        await conversation.updateAvatarUrl(`file://${url}`, (conversation => {
+        await conversation.updateAvatarUrl(url, (conversation => {
             this.emit("conversationUpdated", conversation);
         }));
+    }
+
+    public setNoAvatarForJid = async (jid: string) => {
+        const conversation = await this.getConversationByJid(jid);
+        await conversation.setNoAvatar();
+        // TODO: Maybe trigger an event
     }
 
     public conversationNewMessageAdded = async (jid: string, timestamp: number, messageBody: string, isOOB: boolean, incrementUnread: boolean = false) => {
@@ -91,6 +97,7 @@ export default class ConversationCache extends EventEmitter {
                 convo.lastMessageOOB = conversation.lastMessageOOB;
                 convo.unreadMessagesCount = conversation.unreadMessagesCount;
                 convo.avatarUrl = conversation.avatarUrl;
+                convo.hasAvatar = true;
                 convo.type = conversation.type;
 
                 // NOTE: It feels really weird to do it here, but we cannot change

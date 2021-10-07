@@ -20,6 +20,7 @@ import ConversationsListView from './ui/conversationlist/ConversationsListView';
 import NewConversationView from './ui/newconversation/NewConversation';
 import PreStartView from './ui/prestart/PreStartView';
 import LicensesView from './ui/licenses/LicensesView';
+import NewContactView from './ui/newcontact/NewContactView';
 
 import { Routes } from "./ui/constants";
 
@@ -70,6 +71,12 @@ const App = () => {
                   headerShown: false
                 }}
                 component={NewConversationView} />
+              <Stack.Screen
+                name={Routes.NEWCONTACT}
+                options={{
+                  headerShown: false
+                }}
+                component={NewContactView} />
               <Stack.Screen
                 name={Routes.SETTINGS}
                 options={{

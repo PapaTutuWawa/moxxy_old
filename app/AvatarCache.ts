@@ -9,12 +9,14 @@ const AVATAR_CACHE_PATH = RNFS.CachesDirectoryPath + "/avatars/";
 // TODO: Cache that a user has no avatar
 export class AvatarCache extends EventEmitter {
     private cache: {[bareJid: string]: string};
+    private requestsRunning: {[barreJid: string]: boolean};
     private isInitialized: boolean;
 
     constructor() {
         super();
 
         this.isInitialized = false;
+        this.requestsRunning = {};
         this.cache = {};
     }
 
@@ -49,6 +51,10 @@ export class AvatarCache extends EventEmitter {
         return path;
     }
 
+    public hasRunningRequest = (bareJid: string) => {
+        return bareJid in this.requestsRunning;
+    }
+
     public getAvatar = async (client: XMPP.Agent, bareJid: string): Promise<Maybe<string>> => {
         if (!this.isInitialized)
             await this.loadAvatars();
@@ -58,9 +64,13 @@ export class AvatarCache extends EventEmitter {
         
         // TODO: Only request when we don't have it saved.
         // First we request it.
+        this.requestsRunning[bareJid] = true;
         const data = await getAvatar(client, bareJid);
-        if (!data)
+        if (!data) {
+            delete this.requestsRunning[bareJid];
             return new Maybe();
+        }
+        delete this.requestsRunning[bareJid];
         
         return new Maybe(await this.setAvatar(data.getValue().toString(), bareJid));
     }

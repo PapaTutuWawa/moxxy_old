@@ -10,6 +10,7 @@ import { PresenceType } from "../../data/Presence";
 import { badgeStatus, padNumber } from "../helpers";
 import Conversation from "../../app/model/conversation";
 import { Routes } from "../constants";
+import AppRepository from "../../app/Repository";
 
 /**
  * Formats a timestamp for a last message to either "12h", if the time since the last message
@@ -61,6 +62,12 @@ class ConversationsList extends Component {
 
     renderConversationItem = ({item}) => {
         item = item as Conversation;
+
+        console.log(`ConversationsList: ${item.avatarUrl === ""}, ${item.hasAvatar}`);
+        if (item.avatarUrl === "" && item.hasAvatar) {
+            AppRepository.getInstance().requestAndSetAvatar(item.jid, "conversation");
+        }
+
         const avatarDisplayProps = item.avatarUrl ? {source: {uri: item.avatarUrl}} : {title: item.title[0].toUpperCase()};
         return (
                 <TouchableOpacity

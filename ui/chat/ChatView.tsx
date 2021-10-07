@@ -30,6 +30,8 @@ interface ChatViewState {
 };
 
 // TODO: Add "date pills" between days
+// TODO: unreadCount does not get updated if List cannot scroll if not enough messages are present
+// TODO: Use FlatList's ListEmptyComponent to show something when there are not messages yet
 class ChatView extends Component {
     state: ChatViewState;
     private navigation: any;
@@ -74,15 +76,20 @@ class ChatView extends Component {
                     });
                 mc.on("messageAdd", this.onNewMessage);
                 AppRepository.getInstance().setOpenConversationJid(this.conversation.jid);
-                AppRepository.getInstance().getConversationCache().on("conversationUpdated", (conversation: Conversation) => {
-                    this.conversation = conversation;
-                });
+                AppRepository.getInstance().getConversationCache().on("conversationUpdated", this.onConversationUpdate);
             });
     }
 
     componentWillUnmount = () => {
         AppRepository.getInstance().getMessageCache().removeListener("messageAdd", this.onNewMessage);
+        AppRepository.getInstance().getConversationCache().removeListener("conversationUpdated", this.onConversationUpdate);
         AppRepository.getInstance().resetOpenConversationJid();
+    }
+
+    onConversationUpdate = (conversation) => {
+        this.conversation = conversation;
+        // TODO: Put conversation into the state
+        this.forceUpdate();
     }
 
     onKeyPress(text: string) {
@@ -173,6 +180,12 @@ class ChatView extends Component {
 
     // TODO: Handle scroll position resetting when state.messages changes
     render() {
+        if (this.conversation)
+            console.log(`ChatView: ${this.conversation.avatarUrl === ""}, ${this.conversation.hasAvatar}`);
+        if (this.conversation && this.conversation.avatarUrl === "" && this.conversation.hasAvatar) {
+            AppRepository.getInstance().requestAndSetAvatar(this.conversationJid, "conversation");
+        }
+
         const title = this.conversation && this.conversation.title ? this.conversation.title : "";
         const avatarDisplayProps = this.conversation && this.conversation.avatarUrl ? {source: { uri: this.conversation.avatarUrl }} : {title: this.conversationJid[0]};
 

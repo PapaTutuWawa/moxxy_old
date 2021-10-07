@@ -26,6 +26,7 @@ function renderMessageContent(message: Message, start: boolean, end: boolean, be
         // TODO: Handle also videos and generic files
         // TODO: Only accept HTTPS URLs
         // TODO: Use message.getContentType()
+        // TODO: Scale the height proportionally by fetching the image dimensions
         return (
             <Image
                 source={{ uri: message.oobUrl }}
@@ -89,7 +90,6 @@ function bubbleBottomStyle(msg: Message, between: boolean, start: boolean, end: 
     }
 }
 
-// TODO: If we have an image, put a gradient (or something similar) below the timestamp
 export default function ChatBubble(message: Message, type: ConversationType, closerTogether: boolean, between: boolean, start: boolean, end: boolean) {
     const date = new Date(message.timestamp);
     return (

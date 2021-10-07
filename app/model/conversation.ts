@@ -10,6 +10,7 @@ export default class Conversation extends Model {
     @text("last_message_text") lastMessageText: string;
     @field("last_message_oob") lastMessageOOB: boolean;
     @field("unread_messages_count") unreadMessagesCount: number;
+    @field("has_avatar") hasAvatar: boolean;
     @text("avatar_url") avatarUrl: string;
     @field("type") type: ConversationType;
     @field("last_message_timestamp") lastMessageTimestamp: number;
@@ -38,8 +39,16 @@ export default class Conversation extends Model {
     @writer async updateAvatarUrl(avatarUrl: string, callback: (conversation: Conversation) => void) {
         await this.update(conversation => {
             conversation.avatarUrl = avatarUrl;
+            conversation.hasAvatar = true;
 
             callback(conversation);
+        });
+    }
+
+    @writer async setNoAvatar() {
+        await this.update(conversation => {
+            conversation.avatarUrl = "";
+            conversation.hasAvatar = false;
         });
     }
 };

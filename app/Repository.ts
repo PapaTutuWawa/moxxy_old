@@ -20,7 +20,6 @@ import DiscoCache from "./DiscoCache";
 import RosterCache from "./RosterCache";
 import { AvatarCache } from "./AvatarCache";
 import RosterItem from "./model/rosteritem";
-import { getAvatar } from "../xmpp/avatar";
 
 export default class AppRepository {
     private static instance: AppRepository;
@@ -181,12 +180,43 @@ export default class AppRepository {
         });
     }
 
-    public requestAndSetAvatar = async (bareJid: string) => {
+    public requestAndSetAvatar = async (bareJid: string, type: "roster" | "conversation") => {
+        if (this.getAvatarCache().hasRunningRequest(bareJid))
+            return;
+
         const data = await this.getAvatarCache().getAvatar(this.getXMPPClient(), bareJid);
-        if (!data.hasValue())
-            await this.getRosterCache().setNoAvatarForJid(bareJid);
-        else
-            await this.getRosterCache().updateRosterItemAvatarUrl(bareJid, `file://${data.getValue()}`);
+        if (!data.hasValue()) {
+            switch (type) {
+                case "roster":
+                    await this.getRosterCache().setNoAvatarForJid(bareJid);
+                    break;
+                case "conversation":
+                    await this.getConversationCache().setNoAvatarForJid(bareJid);
+                    break;
+            }
+        } else {
+            switch (type) {
+                case "roster":
+                    await this.getRosterCache().updateRosterItemAvatarUrl(bareJid, `file://${data.getValue()}`);
+                    break;
+                case "conversation":
+                    await this.getConversationCache().updateAvatarUrl(bareJid, `file://${data.getValue()}`);
+                    break;
+            }
+        }
+            
+    }
+
+    // TODO: Also send a presence subscription request
+    public addRosterItem = async (bareJid: string) => {
+        await this.getXMPPClient().updateRosterItem({
+            jid: bareJid,
+            subscription: "from"
+        });
+        await this.getRosterCache().addRosterItem({
+            jid: bareJid,
+            // nickname: ""
+        });
     }
 
     private openConversationJid: string = "";

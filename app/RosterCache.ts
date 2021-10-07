@@ -42,6 +42,21 @@ export default class RosterCache extends EventEmitter {
         this.emit("rosterSet", Object.values(this.cache));
     }
 
+    public addRosterItem = async(attributes: any) => {
+        await this.database.write(async () => {
+            await this.database.get(RosterItem.table)
+                .create((item: RosterItem) => {
+                    item.jid = attributes.jid;
+                    item.hasAvatar = true;
+                    item.nickname = attributes.nickname || attributes.jid.split("@")[0],
+                    item.avatarUrl = "";
+
+                    this.cache[attributes.jid] = item;
+                    this.emit("rosterAdd", item);
+                });
+        });
+    }
+
     /**
      * Returns true if @jid is in the roster. Assumes that the function is called after
      * getRoster or setRoster has been called at least once.

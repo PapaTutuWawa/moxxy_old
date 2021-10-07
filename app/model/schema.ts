@@ -12,6 +12,7 @@ export default appSchema({
                 { name: "last_message_timestamp", type: "number" },
                 { name: "last_message_oob", type: "boolean" },
                 { name: "unread_messages_count", type: "number" },
+                { name: "has_avatar", type: "boolean" },
                 { name: "avatar_url", type: "string" },
                 { name: "type", type: "number" }
             ]

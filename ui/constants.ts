@@ -4,6 +4,7 @@ export enum Routes {
     PROFILE = "Profile",
     START = "Start",
     NEWCONVERSATION = "NewConversation",
+    NEWCONTACT = "NewContact",
     SETTINGS = "Settings",
     CONVERSATIONLIST = "ConversationsList",
     PRESTART = "PreStart",

@@ -28,7 +28,9 @@ export default class NewChatView extends React.Component {
                 type: "font-awesome",
                 name: "user-plus"
             },
-            callback: () => {}
+            callback: () => {
+                this.navigation.navigate(Routes.NEWCONTACT)
+            }
         }
     ];
 
@@ -70,7 +72,7 @@ export default class NewChatView extends React.Component {
 
     renderRosterItem = (item: RosterItem) => {
         if (item.hasAvatar && !item.avatarUrl) {
-            AppRepository.getInstance().requestAndSetAvatar(item.jid);
+            AppRepository.getInstance().requestAndSetAvatar(item.jid, "roster");
         }
 
         const name = item.nickname ? item.nickname : item.jid;
