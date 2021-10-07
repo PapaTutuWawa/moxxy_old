@@ -182,7 +182,9 @@ class ChatView extends Component {
         return (
             <View>
                 <View style={{ flexDirection: "row", justifyContent: "center" }}>
-                    <Avatar rounded size="xlarge" {...avatarDisplayProps} />
+                    <TouchableOpacity onPress={() => this.navigation.navigate(Routes.PROFILE, { conversationJid: this.conversationJid })}>
+                        <Avatar rounded size="xlarge" {...avatarDisplayProps} />
+                    </TouchableOpacity>
                 </View>
                 <View style={{ flexDirection: "row", justifyContent: "center" }}>
                     <Text style={[material.headlineWhite]}>No messages yet...</Text>
