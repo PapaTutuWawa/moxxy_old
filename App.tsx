@@ -80,26 +80,13 @@ const App = () => {
               <Stack.Screen
                 name={Routes.SETTINGS}
                 options={{
-                  headerStyle: {
-                    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter
-                  },
-                  headerTitleStyle: {
-                    color: isDarkMode ? Colors.lighter : Colors.darker
-                  },
-                  headerTintColor: isDarkMode ? Colors.lighter : Colors.darker
+                  headerShown: false
                 }}
                 component={SettingsView} />
               <Stack.Screen
                 name={Routes.LICENSES}
                 options={{
-                  title: "Licenses",
-                  headerStyle: {
-                    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter
-                  },
-                  headerTitleStyle: {
-                    color: isDarkMode ? Colors.lighter : Colors.darker
-                  },
-                  headerTintColor: isDarkMode ? Colors.lighter : Colors.darker
+                  headerShown: false
                 }}
                 component={LicensesView} />
             </Stack.Navigator>
