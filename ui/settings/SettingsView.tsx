@@ -3,6 +3,7 @@ import { FlatList, View, Switch, TouchableOpacity } from "react-native";
 import { Text } from "react-native-elements";
 import { material } from "react-native-typography";
 import { Routes } from "../constants";
+import FlatHeader from "../FlatHeader";
 import { backgroundStyle } from "../helpers";
 
 interface Setting {
@@ -94,6 +95,7 @@ export default class SettingsView extends React.Component {
                 height: "100%",
                 ...backgroundStyle(true)
             }}>
+                <FlatHeader navigation={this.navigation} title="Settings" />
                 <FlatList
                     data={this.settings}
                     renderItem={this.wrapSetting} />

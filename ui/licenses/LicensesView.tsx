@@ -3,6 +3,7 @@ import React from "react";
 import { View, Linking, FlatList, TouchableOpacity } from "react-native";
 import { Text } from "react-native-elements";
 import { material } from "react-native-typography";
+import FlatHeader from "../FlatHeader";
 import { backgroundStyle } from "../helpers";
 
 interface Library {
@@ -12,6 +13,7 @@ interface Library {
 };
 
 export default class LicensesView extends React.Component {
+    private navigation: any;
     private libraries: Library[] = [
         {
             title: "React",
@@ -85,6 +87,12 @@ export default class LicensesView extends React.Component {
         }
     ];
 
+    constructor(props: any) {
+        super(props);
+
+        this.navigation = props.navigation;
+    }
+
     renderLibrary({ item }) {
         return (
             <View style={{ width: "100%", paddingBottom: 10 }}>
@@ -98,12 +106,15 @@ export default class LicensesView extends React.Component {
 
     render() {
         return (
-            <View style={{ height: "100%", paddingTop: 10, paddingLeft: 10, paddingRight: 10, ...backgroundStyle(true)}}>
-                <FlatList
-                    style={{ width: "100%" }}
-                    data={this.libraries}
-                    showsVerticalScrollIndicator={false}
-                    renderItem={this.renderLibrary} />
+            <View style={{ height: "100%", ...backgroundStyle(true)}}>
+                <FlatHeader navigation={this.navigation} title="Licenses" />
+                <View style={{ paddingTop: 10, paddingLeft: 10, paddingRight: 10 }}>
+                    <FlatList
+                        style={{ width: "100%" }}
+                        data={this.libraries}
+                        showsVerticalScrollIndicator={false}
+                        renderItem={this.renderLibrary} />
+                </View>
             </View>
         );
     }
