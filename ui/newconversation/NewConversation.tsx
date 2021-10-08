@@ -68,7 +68,7 @@ export default class NewChatView extends React.Component {
 
     componentWillUnmount = () => {
         AppRepository.getInstance().getRosterCache().removeListener("rosterSet", this.setRoster);
-        AppRepository.getInstance().getRosterCache().on("rosterItemUpdated", this.onRosterItemUpdates);
+        AppRepository.getInstance().getRosterCache().removeListener("rosterItemUpdated", this.onRosterItemUpdates);
     }
 
     renderRosterItem = (item: RosterItem) => {
