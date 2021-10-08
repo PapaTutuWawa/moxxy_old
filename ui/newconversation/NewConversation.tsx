@@ -8,6 +8,7 @@ import { PresenceType } from "../../data/Presence";
 import { Routes } from "../constants";
 import RosterItem from "../../app/model/rosteritem";
 import FlatHeader from "../FlatHeader";
+import { material } from "react-native-typography";
 
 interface NewChatViewState {
     roster: RosterItem[];
@@ -122,7 +123,7 @@ export default class NewChatView extends React.Component {
                 </View>
                 <View>
                     {/* TODO: Make this split stuff nicer */}
-                    <Text h4 style={{ color: "white", marginLeft: 10 }}>{item.nickname || hack__bareJid(item.jid).split("@")[0]}</Text>
+                    <Text style={[material.headlineWhite, { color: "white", marginLeft: 10 }]}>{item.nickname || hack__bareJid(item.jid).split("@")[0]}</Text>
                     <Text style={{ color: "white", marginLeft: 10 }}>{item.jid}</Text>
                 </View>
             </TouchableOpacity>
@@ -144,7 +145,7 @@ export default class NewChatView extends React.Component {
                     <Avatar rounded size="medium" containerStyle={{ backgroundColor: "#7f8c8d" }} icon={icon} />
                 </View>
                 <View style={{ justifyContent: "center" }}>
-                    <Text h4 style={{ color: "white", marginLeft: 10 }}>{title}</Text>
+                    <Text style={[material.headlineWhite, { color: "white", marginLeft: 10 }]}>{title}</Text>
                 </View>
             </TouchableOpacity>
         );
