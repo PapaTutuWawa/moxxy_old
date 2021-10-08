@@ -143,7 +143,8 @@ export default class AppRepository {
                         timestamp: timestamp,
                         stanzaId: msg.stanzaIds["id"],
                         encryption: MessageEncryptionType.NONE, // TODO
-                        oobUrl: isOOB ? msg.links[0].url : ""
+                        oobUrl: isOOB ? msg.links[0].url : "",
+                        threadId: msg.thread || ""
                     });
                 });
 

@@ -126,6 +126,7 @@ class ChatView extends Component {
         
         const body = this.state.currentText;
         const timestamp = new Date().getTime();
+        const threadId = uuid();
         const msg: Message = {
             body,
             sentIn: this.conversation.jid,
@@ -133,18 +134,20 @@ class ChatView extends Component {
             sent: true,
             stanzaId: uuid(),
             encryption: MessageEncryptionType.NONE, // TODO
-            oobUrl: "" // TODO
+            oobUrl: "", // TODO
+            threadId: threadId,
         };
         AppRepository.getInstance().getMessageCache()
             .addMessage(msg)
             .then(async () => {
                 // TODO: OOB
-                await this.conversation.updateLastMessage(body, timestamp, false, false);
+                await this.conversation.updateLastMessage(body, timestamp, false, "", false);
             });
         AppRepository.getInstance().getXMPPClient()
             .sendMessage({
                 to: this.conversation.jid,
-                body: body
+                body: body,
+                thread: threadId
             });
         this.setState({
             currentText: ""

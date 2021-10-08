@@ -1,20 +1,22 @@
-enum MessageType {
+export enum MessageType {
     MESSAGE_CHAT,
     MESSAGE_GROUPCHAT
 };
 
-enum MessageContentType {
+export enum MessageContentType {
     TEXT,
     STICKER,
     IMAGE,
     FILE
 };
 
-enum MessageEncryptionType {
+export enum MessageEncryptionType {
     NONE = 0,
     OMEMO = 1
 };
 
-export {
-    MessageType, MessageContentType, MessageEncryptionType
-};
+export enum MessageQuotationType {
+    EMAIL, // Quotation by putting "> " infront of the text
+    THREAD, // By using <thread parent=""> and XEP-0201
+    NONE // Message cannot be quoted
+}

@@ -46,6 +46,7 @@ export default class MessageCache extends EventEmitter {
                 message.stanzaId = msg.stanzaId;
                 message.encryption = msg.encryption;
                 message.oobUrl = msg.oobUrl || "";
+                message.threadId = msg.threadId || "";
 
                 // NOTE: It feels really weird to do it here, but we cannot change
                 //       model attributes outside of create/...

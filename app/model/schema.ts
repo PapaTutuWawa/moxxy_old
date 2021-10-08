@@ -28,7 +28,8 @@ export default appSchema({
                 { name: "timestamp", type: "number" },
                 { name: "stanza_id", type: "string" },
                 { name: "encryption", type: "number" },
-                { name: "oob_url", type: "string" }
+                { name: "oob_url", type: "string" },
+                { name: "thread_id", type: "string" }
             ]
         }),
         tableSchema({

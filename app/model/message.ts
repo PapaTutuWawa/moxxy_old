@@ -1,6 +1,6 @@
 import { Model } from "@nozbe/watermelondb";
 import { field, text, writer } from "@nozbe/watermelondb/decorators";
-import { MessageContentType, MessageEncryptionType } from "../../data/Message";
+import { MessageContentType, MessageEncryptionType, MessageQuotationType } from "../../data/Message";
 
 export default class Message extends Model {
     static table = "messages";
@@ -15,6 +15,7 @@ export default class Message extends Model {
     @text("stanza_id") stanzaId: string;
     @field("encryption") encryption: MessageEncryptionType;
     @text("oob_url") oobUrl: string; // Optional
+    @text("thread_id") threadId: string;
 
     /**
      * Returns true if the message is to be treated as a sent/received image, video, file, ...
@@ -32,5 +33,18 @@ export default class Message extends Model {
         }
 
         return MessageContentType.TEXT;
+    }
+
+    /**
+     * Returns the way a message can be quoted
+     */
+    getQuotation = (): MessageQuotationType => {
+        if (this.threadId)
+            return MessageQuotationType.THREAD;
+
+        if (!this.isOOB())
+            return MessageQuotationType.EMAIL;
+
+        return MessageQuotationType.NONE;
     }
 };
