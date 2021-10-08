@@ -89,7 +89,6 @@ export default class NewContactView extends React.Component {
                 <FlatHeader navigation={this.navigation} title="Add new Contact" />
 
                 <View style={{ flexDirection: "row", justifyContent: "center" }}>
-                    {/* TODO: Add accessory for scanning a QR code */}
                     <Input
                         style={{ width: "80%" }}
                         placeholder="XMPP-Address"
@@ -99,13 +98,14 @@ export default class NewContactView extends React.Component {
                         accessoryRight={this.renderQRIcon} />
                 </View>
 
-                {/* TODO: The button is not long enough */}
                 <View style={{ flexDirection: "row", justifyContent: "center", marginTop: 20 }}>
-                    <Button
-                        disabled={!this.state.canAdd}
-                        loading={this.state.waiting}
-                        onPress={this.addContact}
-                        title="Add contact" />
+                    <View style={{ width: "80%"}}>
+                        <Button
+                            disabled={!this.state.canAdd}
+                            loading={this.state.waiting}
+                            onPress={this.addContact}
+                            title="Add contact" />
+                    </View>
                 </View>
             </View>
         );
