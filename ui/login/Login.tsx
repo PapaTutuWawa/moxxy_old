@@ -10,6 +10,7 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 
 import AppRepository from "../../app/Repository";
 import { Routes } from "../constants";
+import FlatHeader from "../FlatHeader";
 
 interface LoginComponentState {
     collapsed: boolean;
@@ -137,56 +138,60 @@ export default class LoginComponent extends React.Component {
         return (
             <View style={{
                 height: "100%",
-                paddingTop: 20,
-                paddingBottom: 60,
-                paddingLeft: 60,
-                paddingRight: 60,
                 ...backgroundStyle(true)
             }}>
-                <View style={{ marginTop: 10 }}>
-                    <Input
-                        placeholder="XMPP Address"
-                        value={this.state.username}
-                        disabled={this.state.waiting}
-                        status={this.state.errorType === LoginComponentError.JID ? "danger" : ""}
-                        onChangeText={text => this.setUsername(text)} />
-                </View>
-                <View style={{ marginTop: 10, marginBottom: 10 }}>
-                    <Input
-                        placeholder="Password"
-                        value={this.state.password}
-                        onChangeText={text => this.setPassword(text)}
-                        secureTextEntry={this.state.hidePassword}
-                        disabled={this.state.waiting}
-                        status={this.state.errorType === LoginComponentError.PASSWORD ? "danger" : ""}
-                        accessoryRight={this.renderPasswordIcon} />
-                </View>
+                <FlatHeader navigation={this.navigation} title="Login" />
+                <View style={{
+                    paddingTop: 20,
+                    paddingBottom: 60,
+                    paddingLeft: 60,
+                    paddingRight: 60
+                }}>
+                    <View style={{ marginTop: 10 }}>
+                        <Input
+                            placeholder="XMPP Address"
+                            value={this.state.username}
+                            disabled={this.state.waiting}
+                            status={this.state.errorType === LoginComponentError.JID ? "danger" : ""}
+                            onChangeText={text => this.setUsername(text)} />
+                    </View>
+                    <View style={{ marginTop: 10, marginBottom: 10 }}>
+                        <Input
+                            placeholder="Password"
+                            value={this.state.password}
+                            onChangeText={text => this.setPassword(text)}
+                            secureTextEntry={this.state.hidePassword}
+                            disabled={this.state.waiting}
+                            status={this.state.errorType === LoginComponentError.PASSWORD ? "danger" : ""}
+                            accessoryRight={this.renderPasswordIcon} />
+                    </View>
 
-                {
-                    this.state.errorType !== undefined && (
-                        <Text style={[material.body2White, { color: "red" }]}>
-                            {this.state.errorString}
-                        </Text>
-                    )
-                }
+                    {
+                        this.state.errorType !== undefined && (
+                            <Text style={[material.body2White, { color: "red" }]}>
+                                {this.state.errorString}
+                            </Text>
+                        )
+                    }
 
-                <Button
-                    type="clear"
-                    title="Advanced options"
-                    disabled={this.state.waiting}
-                    onPress={() => this.toggleAdvanced()}/>
-                
-                <Collapsible style={{ paddingTop: 10 }} collapsed={this.state.collapsed}>
-                    <Input disabled={this.state.waiting} placeholder="Server Address" />
-                    <Input disabled={this.state.waiting} style={{ marginTop: 10 }} placeholder="Server Port" />
-                </Collapsible>
-
-                <View style={{ marginTop: 15 }}>
                     <Button
-                        loading={this.state.waiting}
-                        onPress={() => this.login()}
-                        disabled={this.state.username.length === 0 || this.state.password.length === 0}
-                        title="Login"/>
+                        type="clear"
+                        title="Advanced options"
+                        disabled={this.state.waiting}
+                        onPress={() => this.toggleAdvanced()}/>
+                    
+                    <Collapsible style={{ paddingTop: 10 }} collapsed={this.state.collapsed}>
+                        <Input disabled={this.state.waiting} placeholder="Server Address" />
+                        <Input disabled={this.state.waiting} style={{ marginTop: 10 }} placeholder="Server Port" />
+                    </Collapsible>
+
+                    <View style={{ marginTop: 15 }}>
+                        <Button
+                            loading={this.state.waiting}
+                            onPress={() => this.login()}
+                            disabled={this.state.username.length === 0 || this.state.password.length === 0}
+                            title="Login"/>
+                    </View>
                 </View>
             </View>
         );

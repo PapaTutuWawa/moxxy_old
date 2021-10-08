@@ -22,27 +22,13 @@ export default class StartView extends React.Component {
                 <Stack.Screen
                     name="Start/Register/Easy"
                     options={{
-                        title: "Easy Registration",
-                        headerStyle: {
-                            backgroundColor: isDarkMode ? Colors.darker : Colors.lighter
-                          },
-                          headerTitleStyle: {
-                            color: isDarkMode ? Colors.lighter : Colors.darker
-                          },
-                          headerTintColor: isDarkMode ? Colors.lighter : Colors.darker
+                        headerShown: false
                     }}
                     component={RegisterEasyComponent} />
                 <Stack.Screen
                     name="Start/Login"
                     options={{
-                        title: "Login",
-                        headerStyle: {
-                            backgroundColor: isDarkMode ? Colors.darker : Colors.lighter
-                          },
-                          headerTitleStyle: {
-                            color: isDarkMode ? Colors.lighter : Colors.darker
-                          },
-                          headerTintColor: isDarkMode ? Colors.lighter : Colors.darker
+                        headerShown: false
                     }}
                     component={LoginComponent} />
                 <Stack.Screen options={{ headerShown: false }} name="Start/PostRegister" component={PostRegisterComponent} />

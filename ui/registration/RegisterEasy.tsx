@@ -6,6 +6,7 @@ import { material } from "react-native-typography";
 import { backgroundStyle } from "../helpers";
 
 import Providers from "../../data/providers-A.json";
+import FlatHeader from "../FlatHeader";
 
 interface RegisterEasyComponentState {
     username: string;
@@ -119,41 +120,45 @@ export default class RegisterEasyComponent extends React.Component {
         return (
             <View style={{
                 height: "100%",
-                paddingLeft: 50,
-                paddingRight: 50,
-                paddingBottom: 60,
-                paddingTop: 15,
                 ...backgroundStyle(this.isDarkMode)
             }}>
-                <Text style={this.isDarkMode ? material.body2White : material.body2}>
-                    The easy registration will randomly select a XMPP provider with a good reputation
-                    to create your new account. A password will be auto-generated for you.
-                </Text>
-                <View style={{ flexDirection: "row" }}>
-                    <Input
-                        style={{ borderBottomRightRadius: 0, borderTopRightRadius: 0, flex: 1 }}
-                        placeholder="Username"
-                        status={this.state.showError ? "danger" : ""}
-                        value={this.state.username}
-                        onChangeText={text => this.onKeyPress(text)}
-                        disabled={this.state.waiting} />
-                    <Input
-                        style={{ borderBottomLeftRadius: 0, borderTopLeftRadius: 0 }}
-                        value={"@" + this.state.provider.jid}
-                        disabled={true}
-                        accessoryRight={this.renderProviderRegenerate} />
-                </View>
-
-                <Text style={{ color: "blue" }} onPress={() => Linking.openURL(website)}>{this.state.provider.jid}'s website</Text>
-
-                { this.state.showError && (
-                    <View style={{ marginTop: 10 }}>
-                        <Text style={[material.body2, { color: "red" }]}>{this.state.errorMessage}</Text>
+                <FlatHeader navigation={this.navigation} title="Registration" />
+                <View style={{
+                    paddingLeft: 50,
+                    paddingRight: 50,
+                    paddingBottom: 60,
+                    paddingTop: 15,
+                }}>
+                    <Text style={this.isDarkMode ? material.body2White : material.body2}>
+                        The easy registration will randomly select a XMPP provider with a good reputation
+                        to create your new account. A password will be auto-generated for you.
+                    </Text>
+                    <View style={{ flexDirection: "row" }}>
+                        <Input
+                            style={{ borderBottomRightRadius: 0, borderTopRightRadius: 0, flex: 1 }}
+                            placeholder="Username"
+                            status={this.state.showError ? "danger" : ""}
+                            value={this.state.username}
+                            onChangeText={text => this.onKeyPress(text)}
+                            disabled={this.state.waiting} />
+                        <Input
+                            style={{ borderBottomLeftRadius: 0, borderTopLeftRadius: 0 }}
+                            value={"@" + this.state.provider.jid}
+                            disabled={true}
+                            accessoryRight={this.renderProviderRegenerate} />
                     </View>
-                )}
 
-                <View style={{ marginTop: 15 }}>
-                    <Button loading={this.state.waiting} title="Create Account" onPress={() => this.createAccount()} />
+                    <Text style={{ color: "blue" }} onPress={() => Linking.openURL(website)}>{this.state.provider.jid}'s website</Text>
+
+                    { this.state.showError && (
+                        <View style={{ marginTop: 10 }}>
+                            <Text style={[material.body2, { color: "red" }]}>{this.state.errorMessage}</Text>
+                        </View>
+                    )}
+
+                    <View style={{ marginTop: 15 }}>
+                        <Button loading={this.state.waiting} title="Create Account" onPress={() => this.createAccount()} />
+                    </View>
                 </View>
             </View>
         );
