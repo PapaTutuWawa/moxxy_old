@@ -107,6 +107,7 @@ export default class AppRepository {
                     return;
 
                 const isOOB = msg.links && msg.links.length > 0 && msg.links[0].url && msg.links[0].url.startsWith("https://");
+                const oobUrl = isOOB ? msg.links[0].url : "";
                 const bareJid = hack__bareJid(msg.from);
                 const hasConversation = await this.getConversationCache().hasConversation(bareJid);
                 // TODO: Use [Image], [File], [Video]
@@ -150,7 +151,7 @@ export default class AppRepository {
                     // Prevent us from updating the list item twice
                     promiseChain.then(async () => {
                         console.log(`Open JID: ${this.getOpenConversationJid()}`);
-                        await this.getConversationCache().conversationNewMessageAdded(bareJid, timestamp, lastMessageText, isOOB, this.getOpenConversationJid() !== bareJid)
+                        await this.getConversationCache().conversationNewMessageAdded(bareJid, timestamp, lastMessageText, isOOB, oobUrl, this.getOpenConversationJid() !== bareJid)
                     });
                 else
                     promiseChain.then(async () => {

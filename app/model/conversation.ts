@@ -1,5 +1,6 @@
 import { Model } from "@nozbe/watermelondb";
-import { field, text, writer } from "@nozbe/watermelondb/decorators";
+import { field, text, json, writer } from "@nozbe/watermelondb/decorators";
+import { MediaSession } from "stanza/jingle";
 import { ConversationType } from "../../data/Conversation";
 
 export default class Conversation extends Model {
@@ -14,12 +15,17 @@ export default class Conversation extends Model {
     @text("avatar_url") avatarUrl: string;
     @field("type") type: ConversationType;
     @field("last_message_timestamp") lastMessageTimestamp: number;
+    @json("media", (media) => Array.isArray(media) ? media : []) media: string[];
 
-    @writer async updateLastMessage (body: string, timestamp: number, isOOB: boolean, incrementUnread: boolean = false, callback: (conversation: Conversation) => void = () => {}) {
+    @writer async updateLastMessage (body: string, timestamp: number, isOOB: boolean, oobUrl: string, incrementUnread: boolean = false, callback: (conversation: Conversation) => void = () => {}) {
         await this.update(conversation => {
             conversation.lastMessageText = body;
             conversation.lastMessageTimestamp = timestamp
             conversation.lastMessageOOB = isOOB;
+
+            // TODO: This needs to be improved
+            if (isOOB)
+                conversation.media = conversation.media.concat(oobUrl);
 
             if (incrementUnread)
                 conversation.unreadMessagesCount += 1;

@@ -14,7 +14,8 @@ export default appSchema({
                 { name: "unread_messages_count", type: "number" },
                 { name: "has_avatar", type: "boolean" },
                 { name: "avatar_url", type: "string" },
-                { name: "type", type: "number" }
+                { name: "type", type: "number" },
+                { name: "media", type: "string" }
             ]
         }),
         tableSchema({

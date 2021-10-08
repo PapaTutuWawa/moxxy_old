@@ -60,9 +60,9 @@ export default class ConversationCache extends EventEmitter {
         // TODO: Maybe trigger an event
     }
 
-    public conversationNewMessageAdded = async (jid: string, timestamp: number, messageBody: string, isOOB: boolean, incrementUnread: boolean = false) => {
+    public conversationNewMessageAdded = async (jid: string, timestamp: number, messageBody: string, isOOB: boolean, oobUrl: string, incrementUnread: boolean = false) => {
         const conversation = await this.getConversationByJid(jid);
-        conversation.updateLastMessage(messageBody, timestamp, isOOB, incrementUnread, (conversation: Conversation) => {
+        conversation.updateLastMessage(messageBody, timestamp, isOOB, oobUrl, incrementUnread, (conversation: Conversation) => {
             this.cache[jid] = conversation;
             this.emit("conversationUpdated", conversation);
         });
@@ -99,6 +99,7 @@ export default class ConversationCache extends EventEmitter {
                 convo.avatarUrl = conversation.avatarUrl;
                 convo.hasAvatar = true;
                 convo.type = conversation.type;
+                convo.media = [];
 
                 // NOTE: It feels really weird to do it here, but we cannot change
                 //       model attributes outside of create/...
