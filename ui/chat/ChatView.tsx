@@ -5,7 +5,7 @@ import {
     Image,
     FlatList
 } from "react-native";
-import { SpeedDial, Avatar, Overlay, Text, Badge, Icon } from "react-native-elements";
+import { SpeedDial, Avatar, Text, Badge, Button } from "react-native-elements";
 import { useNavigation } from "@react-navigation/native";
 import { Input, Modal, Card } from "@ui-kitten/components";
 
@@ -62,7 +62,12 @@ class ChatView extends Component {
         AppRepository.getInstance().getConversationCache()
             .getConversationByJid(this.conversationJid)
             .then(conversation => {
-                this.conversation = conversation;
+                if (!conversation.hasValue()) {
+                    console.log(`ChatView::constructor: No conversation for ${this.conversationJid}!`);
+                    return;
+                }
+        
+                this.conversation = conversation.getValue();
             })
             .then(() => {
                 const mc = AppRepository.getInstance().getMessageCache();
@@ -194,9 +199,8 @@ class ChatView extends Component {
     }
 
     // TODO: Handle scroll position resetting when state.messages changes
+    // TODO: Show the block or add contact buttons if the JID is not in the roster
     render() {
-        if (this.conversation)
-            console.log(`ChatView: ${this.conversation.avatarUrl === ""}, ${this.conversation.hasAvatar}`);
         if (this.conversation && this.conversation.avatarUrl === "" && this.conversation.hasAvatar) {
             AppRepository.getInstance().requestAndSetAvatar(this.conversationJid, "conversation");
         }
@@ -221,6 +225,17 @@ class ChatView extends Component {
                         </TouchableOpacity>
                     </View>
                 </FlatHeader>
+
+                {/*<View style={{ flexDirection: "row", justifyContent: "center", paddingLeft: 20, paddingRight: 20 }}>
+                    <View style={{ flex: 1 }}>
+                        <Button title="Add contact" />
+                    </View>
+                    
+                    <View style={{ flex: 1, marginLeft: 20 }}>
+                        <Button title="Block" />
+                    </View>
+                </View>*/}
+
                 <FlatList
                     style={{ padding: 10 }}
                     data={this.state.messages}

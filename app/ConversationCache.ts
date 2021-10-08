@@ -2,6 +2,7 @@ import { Database, Q } from "@nozbe/watermelondb";
 import { EventEmitter } from "events";
 import { ConversationType } from "../data/Conversation";
 import Conversation from "./model/conversation";
+import Maybe from "./types/maybe";
 
 export default class ConversationCache extends EventEmitter {
     private cache: {[jid: string]: Conversation};
@@ -30,18 +31,23 @@ export default class ConversationCache extends EventEmitter {
         return Object.values(this.cache);
     }
 
-    public getConversationByJid = async (jid: string): Promise<Conversation> => {
+    public getConversationByJid = async (jid: string): Promise<Maybe<Conversation>> => {
         if (!this.isInitialized) {
             await this.getConversations();
         }
 
         // TODO: Check if it exists
-        return this.cache[jid];
+        return new Maybe(this.cache[jid]);
     };
 
     public markAsRead = async (jid: string) => {
         const conversation = await this.getConversationByJid(jid);
-        conversation.markAsRead(conversation => {
+        if (!conversation.hasValue()) {
+            console.log(`markAsRead: No conversation for ${jid}!`);
+            return;
+        }
+
+        conversation.getValue().markAsRead(conversation => {
             this.cache[jid] = conversation;
             this.emit("conversationUpdated", conversation);
         });
@@ -49,20 +55,35 @@ export default class ConversationCache extends EventEmitter {
 
     public updateAvatarUrl = async (jid: string, url: string) => {
         const conversation = await this.getConversationByJid(jid);
-        await conversation.updateAvatarUrl(url, (conversation => {
+        if (!conversation.hasValue()) {
+            console.log(`updateAvatarUrl: No conversation for ${jid}!`);
+            return;
+        }
+
+        await conversation.getValue().updateAvatarUrl(url, (conversation => {
             this.emit("conversationUpdated", conversation);
         }));
     }
 
     public setNoAvatarForJid = async (jid: string) => {
         const conversation = await this.getConversationByJid(jid);
-        await conversation.setNoAvatar();
+        if (!conversation.hasValue()) {
+            console.log(`setNoAvatarForJid: No conversation for ${jid}!`);
+            return;
+        }
+
+        await conversation.getValue().setNoAvatar();
         // TODO: Maybe trigger an event
     }
 
     public conversationNewMessageAdded = async (jid: string, timestamp: number, messageBody: string, isOOB: boolean, oobUrl: string, incrementUnread: boolean = false) => {
         const conversation = await this.getConversationByJid(jid);
-        conversation.updateLastMessage(messageBody, timestamp, isOOB, oobUrl, incrementUnread, (conversation: Conversation) => {
+        if (!conversation.hasValue()) {
+            console.log(`conversationNewMessageAdded: No conversation for ${jid}!`);
+            return;
+        }
+
+        conversation.getValue().updateLastMessage(messageBody, timestamp, isOOB, oobUrl, incrementUnread, (conversation: Conversation) => {
             this.cache[jid] = conversation;
             this.emit("conversationUpdated", conversation);
         });
@@ -87,6 +108,18 @@ export default class ConversationCache extends EventEmitter {
         return jid in this.cache;
     }
 
+    public setConversationOpen = async (jid: string, open: boolean) => {
+        const conversation = await this.getConversationByJid(jid);
+        if (!conversation.hasValue()) {
+            console.log(`setConversationOpen: No conversation for ${jid}!`);
+            return;
+        }
+
+        await conversation.getValue().setOpen(open);
+        // NOTE: Not sure, but this messes with ProfileView upon closing
+        //this.emit("conversationUpdated", conversation);
+    }
+
     public addConversation = async (conversation: any, afterAdd?: (conversation: Conversation) => void): Promise<void> => {
         await this.database.write(async () => {
             await this.database.get(Conversation.table).create((convo: Conversation) => {
@@ -99,6 +132,7 @@ export default class ConversationCache extends EventEmitter {
                 convo.avatarUrl = conversation.avatarUrl;
                 convo.hasAvatar = true;
                 convo.type = conversation.type;
+                convo.open = true; // TODO: Maybe take from the parameter
                 convo.media = [];
 
                 // NOTE: It feels really weird to do it here, but we cannot change

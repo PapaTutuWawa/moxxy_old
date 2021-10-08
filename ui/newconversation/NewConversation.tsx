@@ -81,7 +81,11 @@ export default class NewChatView extends React.Component {
         return (
             <TouchableOpacity
                 onPress={async () => {
-                    if (await AppRepository.getInstance().getConversationCache().hasConversation(item.jid)) {
+                    const conversation = await AppRepository.getInstance().getConversationCache().getConversationByJid(item.jid);
+                    if (conversation.hasValue()) {
+                        if (!conversation.getValue().open)
+                            await AppRepository.getInstance().getConversationCache().setConversationOpen(item.jid, true);
+
                         this.navigation.reset({
                             index: 1,
                             routes: [

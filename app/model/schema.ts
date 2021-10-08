@@ -15,6 +15,7 @@ export default appSchema({
                 { name: "has_avatar", type: "boolean" },
                 { name: "avatar_url", type: "string" },
                 { name: "type", type: "number" },
+                { name: "open", type: "boolean" },
                 { name: "media", type: "string" }
             ]
         }),

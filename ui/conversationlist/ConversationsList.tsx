@@ -64,6 +64,9 @@ class ConversationsList extends Component {
     renderConversationItem = ({item}) => {
         item = item as Conversation;
 
+        if (!item.open)
+            return <></>;
+
         console.log(`ConversationsList: ${item.avatarUrl === ""}, ${item.hasAvatar}`);
         if (item.avatarUrl === "" && item.hasAvatar) {
             AppRepository.getInstance().requestAndSetAvatar(item.jid, "conversation");

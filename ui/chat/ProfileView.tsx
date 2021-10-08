@@ -7,6 +7,7 @@ import AppRepository from "../../app/Repository";
 import FlatHeader from "../FlatHeader";
 import { Button, Icon } from "@ui-kitten/components";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { Routes } from "../constants";
 
 // TODO: Show different things based on whether we come from a DM chat or GC. Also differentiate between
 //       other users and ourself
@@ -28,8 +29,13 @@ export default class ConversationProfileView extends React.Component {
         AppRepository.getInstance().getConversationCache()
             .getConversationByJid(this.conversationJid)
             .then(conversation => {
+                if (!conversation.hasValue()) {
+                    console.log(`ProfileView::constructor: No conversation for ${this.conversationJid}!`);
+                    return;
+                }
+        
                 this.setState({
-                    conversation
+                    conversation: conversation.getValue()
                 });
 
                 AppRepository.getInstance().getConversationCache().on("conversationUpdated", this.onConversationUpdated);
@@ -97,6 +103,16 @@ export default class ConversationProfileView extends React.Component {
         );
     }
 
+    closeConversation = async () => {
+        await AppRepository.getInstance().getConversationCache().setConversationOpen(this.conversationJid, false);
+        this.navigation.reset({
+            index: 0,
+            routes: [
+                { name: Routes.CONVERSATIONLIST}
+            ]
+        });
+    }
+
     renderConversation = () => {
         return (
             <>
@@ -145,7 +161,10 @@ export default class ConversationProfileView extends React.Component {
 
                 <View style={{ flexDirection: "row", justifyContent: "center", marginTop: 20 }}>  
                     <View style={{ width: "80%" }}>
-                        <Button status="warning" accessoryLeft={props => <Icon {...props} name="close" />}>
+                        <Button
+                            status="warning"
+                            accessoryLeft={props => <Icon {...props} name="close" />}
+                            onPress={this.closeConversation}>
                             Close chat
                         </Button>
                     </View>

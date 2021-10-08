@@ -1,6 +1,5 @@
 import { Model } from "@nozbe/watermelondb";
 import { field, text, json, writer } from "@nozbe/watermelondb/decorators";
-import { MediaSession } from "stanza/jingle";
 import { ConversationType } from "../../data/Conversation";
 
 export default class Conversation extends Model {
@@ -15,6 +14,7 @@ export default class Conversation extends Model {
     @text("avatar_url") avatarUrl: string;
     @field("type") type: ConversationType;
     @field("last_message_timestamp") lastMessageTimestamp: number;
+    @field("open") open: boolean; // Whether the conversation should be shown in the ConversationListView
     @json("media", (media) => Array.isArray(media) ? media : []) media: string[];
 
     @writer async updateLastMessage (body: string, timestamp: number, isOOB: boolean, oobUrl: string, incrementUnread: boolean = false, callback: (conversation: Conversation) => void = () => {}) {
@@ -56,5 +56,11 @@ export default class Conversation extends Model {
             conversation.avatarUrl = "";
             conversation.hasAvatar = false;
         });
+    }
+
+    @writer async setOpen(open: boolean) {
+        await this.update(conversation => {
+            conversation.open = open;
+        })
     }
 };
