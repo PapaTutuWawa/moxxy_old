@@ -61,6 +61,16 @@ export default class LicensesView extends React.Component {
             url: "https://github.com/hectahertz/react-native-typography"
         },
         {
+            title: "react-native-qrcode-svg",
+            license: "MIT",
+            url: "https://github.com/awesomejerry/react-native-qrcode-svg"
+        },
+        {
+            title: "react-native-image-crop-picker",
+            license: "MIT",
+            url: "https://github.com/ivpusic/react-native-image-crop-picker"
+        },
+        {
             title: "events",
             license: "MIT",
             url: "https://github.com/Gozala/events"
