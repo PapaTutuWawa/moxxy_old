@@ -20,7 +20,6 @@ interface ConversationsViewState {
     avatarKey: number;
 };
 
-// TODO: Maybe subscribe to avatarSaved/avatarSet
 export default class ConversationsView extends Component {
     private navigation: any;
     private jid: string;
@@ -30,26 +29,16 @@ export default class ConversationsView extends Component {
         super(props);
 
         this.navigation = props.navigation;
-        this.jid = AppRepository.getInstance().getUserData().getValue().jid;
+        this.jid = AppRepository.getInstance().getUserData().jid;
 
         this.state = {
             conversations: [],
             key: 0,
-            avatarUrl: "",
+            avatarUrl: AppRepository.getInstance().getUserData().avatarUrl,
             avatarKey: 0
         };
 
         this.onUpdateConversation(null);
-        AppRepository.getInstance().getAvatarCache().hasAvatar(this.jid)
-            .then(async (hasAvatar) => {
-                if (hasAvatar) {
-                    const path = (await AppRepository.getInstance().getAvatarCache().getAvatar(AppRepository.getInstance().getXMPPClient(), this.jid)).getValue();
-                    this.setState({
-                        avatarUrl: `file://${path}?${this.state.avatarKey + 1}`,
-                        avatarKey: this.state.avatarKey + 1
-                    });
-                }
-            });
         AppRepository.getInstance().getConversationCache().on("conversationAdd", this.onNewConversation);
         AppRepository.getInstance().getConversationCache().on("conversationUpdated", this.onUpdateConversation);
         AppRepository.getInstance().getAvatarCache().on("avatarSaved", this.onAvatarSaved);

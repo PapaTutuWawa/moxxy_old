@@ -1,7 +1,6 @@
 import React from "react";
 import { ActivityIndicator, View } from "react-native";
 import EncryptedStorage from "react-native-encrypted-storage";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import AppRepository from "../../app/Repository";
 import { Routes } from "../constants";
 import { backgroundStyle } from "../helpers";
@@ -44,30 +43,6 @@ export default class PreStartView extends React.Component {
                             smState: JSON.stringify(state),
                         }));
                     });
-
-                    // TODO: Do more checks here because I got a wrong JID
-                    AsyncStorage.getItem("@account_metadata")
-                        .then(async data => {
-                            if (data !== null) {
-                                const obj = JSON.parse(data);
-                                AppRepository.getInstance().setUserData({
-                                    jid,
-                                    avatarUrl: obj.avatarUrl,
-                                    hasAvatar: obj.hasAvatar
-                                });
-                            } else {
-                                await AsyncStorage.setItem("@account_metadata", JSON.stringify({
-                                    jid,
-                                    avatarUrl: "",
-                                    hasAvatar: true
-                                }));
-                                AppRepository.getInstance().setUserData({
-                                    jid,
-                                    avatarUrl: "",
-                                    hasAvatar: true
-                                });
-                            }
-                        });
 
                     this.navigation.reset({
                         index: 0,

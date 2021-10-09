@@ -14,6 +14,8 @@ interface SelfProfileViewState {
     key: number;
 };
 
+// TODO: This resets to an old avatar once
+//       Reproduce: Set avatar -> Go back -> Go to self-profile again
 export default class SelfProfileView extends React.Component {
     private navigation: any;
     private jid: string;
@@ -23,42 +25,13 @@ export default class SelfProfileView extends React.Component {
         super(props);
         
         this.navigation = props.navigation;
-        this.jid = AppRepository.getInstance().getUserData().getValue().jid;
+        this.jid = AppRepository.getInstance().getUserData().jid;
         
         this.state = {
-            avatarUrl: "",
+            avatarUrl: AppRepository.getInstance().getUserData().avatarUrl,
             qrCodeVisible: false,
             key: 0
         };
-
-        const avatarCache = AppRepository.getInstance().getAvatarCache();
-        avatarCache.hasAvatar(this.jid)
-            .then(async (hasAvatar) => {
-                if (hasAvatar) {
-                    const path = (await avatarCache.getAvatar(AppRepository.getInstance().getXMPPClient(), this.jid)).getValue();
-                    this.setState({
-                        avatarUrl: `file://${path}?${this.state.key + 1}`,
-                        key: this.state.key + 1
-                    });
-                }
-            });
-        avatarCache.on("avatarSaved", this.onAvatarSet);
-    }
-
-    componentWillUnmount = () => {
-        AppRepository.getInstance().getAvatarCache().removeListener("avatarSaved", this.onAvatarSet);
-    }
-
-    onAvatarSet = ({jid, path}) => {
-        if (jid !== this.jid)
-            return;
-        
-        this.setState({
-            avatarUrl: `file://${path}?${this.state.key + 1}`,
-            key: this.state.key + 1
-        });
-
-        // TODO: Actually publish it
     }
 
     onProfilePictureSelected = (response) => {
@@ -77,7 +50,16 @@ export default class SelfProfileView extends React.Component {
             writeTempFile: false,
             cropperCircleOverlay: true
         }).then(async (image) => {
-            AppRepository.getInstance().getAvatarCache().setAvatar(image.data, this.jid);
+            const path = await AppRepository.getInstance().getAvatarCache().setAvatar(image.data, this.jid);
+            await AppRepository.getInstance().updateAndSaveUserData({
+                avatarUrl: `file://${path}`,
+                hasAvatar: true
+            });
+            this.setState({
+                avatarUrl: `file://${path}?${this.state.key + 1}`,
+                key: this.state.key + 1
+            });
+            // TODO: Actually publish it
         });
     }
 
@@ -88,7 +70,7 @@ export default class SelfProfileView extends React.Component {
     }
 
     render() {
-        const avatarDisplayProps = this.state.avatarUrl ? {source: { uri: this.state.avatarUrl }} : {title: this.jid[0]};
+        const avatarDisplayProps = this.state.avatarUrl ? {source: { uri: `${this.state.avatarUrl}?${this.state.key}` }} : {title: this.jid[0]};
         return (
             <View style={{ height: "100%", ...backgroundStyle(true) }}>
                 <View style={{ flexDirection: "row" }}>

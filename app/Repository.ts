@@ -21,7 +21,7 @@ import RosterCache from "./RosterCache";
 import { AvatarCache } from "./AvatarCache";
 import RosterItem from "./model/rosteritem";
 import { UserData } from "../data/User";
-import Maybe from "./types/maybe";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default class AppRepository {
     private static instance: AppRepository;
@@ -41,12 +41,39 @@ export default class AppRepository {
         this.client = client;
     }
 
-    private userData: Maybe<UserData> = new Maybe();
+    private userData: UserData;
     public setUserData(data: UserData) {
-        this.userData = new Maybe(data);
+        this.userData = data;
     }
+    public updateAndSaveUserData = async (data: Partial<UserData>) => {
+        const obj = { ...this.userData, ...data};
+        this.setUserData(obj);
+        await AsyncStorage.setItem("@account_metadata", JSON.stringify(this.userData));
+    }
+    /**
+     * Returns the account metadata. Note that the guarantee to return data is only given
+     * once the ConversationsListView, ... is shown.
+     */
     public getUserData() {
         return this.userData;
+    }
+    public loadOrSetUserData = async (jid: string) => {
+        const data = await AsyncStorage.getItem("@account_metadata");
+        if (data !== null) {
+            const obj = JSON.parse(data);
+            this.setUserData({
+                jid,
+                avatarUrl: obj.avatarUrl,
+                hasAvatar: obj.hasAvatar
+            });
+        } else {
+            this.setUserData({
+                jid,
+                avatarUrl: "",
+                hasAvatar: true
+            });
+            await AsyncStorage.setItem("@account_metadata", JSON.stringify(this.userData));
+        }
     }
 
     private onceConnected: boolean;
@@ -63,7 +90,7 @@ export default class AppRepository {
             }));
 
             this.onceConnected = false;
-            this.client.on("session:started", () => {
+            this.client.on("session:started", async () => {
                 this.onceConnected = true;
                 
                 // NOTE: Per RFC, we will only receive messages once we've sent a presence out.
@@ -79,16 +106,11 @@ export default class AppRepository {
                     this.getRosterCache().setRoster(roster.items);
                 });
 
-                // TODO
-                this.setUserData({
-                    jid: args.jid,
-                    avatarUrl: "",
-                    hasAvatar: true
-                });
+                await this.loadOrSetUserData(args.jid);
 
                 onConnect();
             });
-            this.client.on("stream:management:resumed", obj => {
+            this.client.on("stream:management:resumed", async (obj) => {
                 if (!this.onceConnected) {
                     this.onceConnected = true;
                     this.client.getDiscoInfo(args.jid).then((data: XMPP.Stanzas.DiscoInfoResult) => {
@@ -104,12 +126,7 @@ export default class AppRepository {
                     //       are handled by the "avatar" event.
                     //getAvatar(this.client, "papatutuwawa@polynom.me");
 
-                    // TODO
-                    this.setUserData({
-                        jid: args.jid,
-                        avatarUrl: "",
-                        hasAvatar: true
-                    });
+                    await this.loadOrSetUserData(args.jid);
 
                     onConnect();
                 }
