@@ -45,8 +45,10 @@ export default class ConversationsView extends Component {
     }
 
     onAvatarSaved = ({jid, path}) => {
-        if (jid !== this.jid)
+        if (jid !== this.jid) {
+            this.forceUpdate();
             return;
+        }
         
         this.setState({
             avatarUrl: `file://${path}?${this.state.avatarKey + 1}`,

@@ -17,11 +17,12 @@ export default class Conversation extends Model {
     @field("open") open: boolean; // Whether the conversation should be shown in the ConversationListView
     @json("media", (media) => Array.isArray(media) ? media : []) media: string[];
 
-    @writer async updateLastMessage (body: string, timestamp: number, isOOB: boolean, oobUrl: string, incrementUnread: boolean = false, callback: (conversation: Conversation) => void = () => {}) {
+    @writer async updateLastMessage (body: string, timestamp: number, isOOB: boolean, oobUrl: string, incrementUnread: boolean = false, open: boolean, callback: (conversation: Conversation) => void = () => {}) {
         await this.update(conversation => {
             conversation.lastMessageText = body;
             conversation.lastMessageTimestamp = timestamp
             conversation.lastMessageOOB = isOOB;
+            conversation.open = open;
 
             // TODO: This needs to be improved
             if (isOOB)

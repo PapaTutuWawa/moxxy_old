@@ -83,7 +83,7 @@ export default class ConversationCache extends EventEmitter {
             return;
         }
 
-        conversation.getValue().updateLastMessage(messageBody, timestamp, isOOB, oobUrl, incrementUnread, (conversation: Conversation) => {
+        conversation.getValue().updateLastMessage(messageBody, timestamp, isOOB, oobUrl, incrementUnread, true, (conversation: Conversation) => {
             this.cache[jid] = conversation;
             this.emit("conversationUpdated", conversation);
         });

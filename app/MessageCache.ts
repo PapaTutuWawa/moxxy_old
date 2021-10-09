@@ -47,6 +47,7 @@ export default class MessageCache extends EventEmitter {
                 message.encryption = msg.encryption;
                 message.oobUrl = msg.oobUrl || "";
                 message.threadId = msg.threadId || "";
+                message.parentThreadId = msg.parentThreadId || "";
 
                 // NOTE: It feels really weird to do it here, but we cannot change
                 //       model attributes outside of create/...
