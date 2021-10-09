@@ -1,17 +1,23 @@
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import { Avatar, Icon } from "react-native-elements";
+import { Avatar, Icon, Overlay } from "react-native-elements";
 import { material } from "react-native-typography";
 import FlatHeader from "../FlatHeader";
 import { backgroundStyle } from "../helpers";
 import ImageCropPicker from "react-native-image-crop-picker";
 import AppRepository from "../../app/Repository";
+import QRCode from "react-native-qrcode-svg";
+
+interface SelfProfileViewState {
+    avatarUrl: string;
+    qrCodeVisible: boolean;
+};
 
 // TODO: Profile picture does not update once set. Maybe because the path is the same?
 export default class SelfProfileView extends React.Component {
     private navigation: any;
     private jid: string;
-    state: { avatarUrl: string; };
+    state: SelfProfileViewState;
 
     constructor(props: any) {
         super(props);
@@ -21,6 +27,7 @@ export default class SelfProfileView extends React.Component {
         
         this.state = {
             avatarUrl: "",
+            qrCodeVisible: false
         };
 
         const avatarCache = AppRepository.getInstance().getAvatarCache();
@@ -71,6 +78,12 @@ export default class SelfProfileView extends React.Component {
         });
     }
 
+    toggleQrCode = () => {
+        this.setState({
+            qrCodeVisible: !this.state.qrCodeVisible
+        });
+    }
+
     render() {
         const avatarDisplayProps = this.state.avatarUrl ? {source: { uri: this.state.avatarUrl }} : {title: this.jid[0]};
         return (
@@ -91,9 +104,13 @@ export default class SelfProfileView extends React.Component {
                     </View>
                 </View>
 
+                <Overlay isVisible={this.state.qrCodeVisible} onBackdropPress={this.toggleQrCode}>
+                    <QRCode value={`xmpp:${this.jid}`} size={250} />
+                </Overlay>
+
                 <View style={{ flexDirection: "row", justifyContent: "center", marginTop: 20 }}>
-                    <Text style={material.subheadingWhite}>papatutuwawa@polynom.me</Text>
-                    <TouchableOpacity onPress={() => {}} style={{ marginLeft: 5 }}>
+                    <Text style={material.subheadingWhite}>{this.jid}</Text>
+                    <TouchableOpacity onPress={this.toggleQrCode} style={{ marginLeft: 5 }}>
                         <Icon name="qr-code" type="ionicon" color="#ffffff" />
                     </TouchableOpacity>
                 </View>

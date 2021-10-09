@@ -40,6 +40,7 @@
     "react-native-get-random-values": "^1.7.0",
     "react-native-image-crop-picker": "^0.36.4",
     "react-native-pager-view": "^5.4.4",
+    "react-native-qrcode-svg": "^6.1.1",
     "react-native-randombytes": "^3.6.1",
     "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "^3.7.0",
