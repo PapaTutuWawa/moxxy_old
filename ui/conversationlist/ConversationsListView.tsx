@@ -17,10 +17,10 @@ interface ConversationsViewState {
     conversations: Conversation[];
     key: number;
     avatarUrl: string;
+    avatarKey: number;
 };
 
 // TODO: Maybe subscribe to avatarSaved/avatarSet
-// TODO: Profile picture does not update once set. Maybe because the path is the same?
 export default class ConversationsView extends Component {
     private navigation: any;
     private jid: string;
@@ -35,7 +35,8 @@ export default class ConversationsView extends Component {
         this.state = {
             conversations: [],
             key: 0,
-            avatarUrl: ""
+            avatarUrl: "",
+            avatarKey: 0
         };
 
         this.onUpdateConversation(null);
@@ -44,7 +45,8 @@ export default class ConversationsView extends Component {
                 if (hasAvatar) {
                     const path = (await AppRepository.getInstance().getAvatarCache().getAvatar(AppRepository.getInstance().getXMPPClient(), this.jid)).getValue();
                     this.setState({
-                        avatarUrl: `file://${path}`
+                        avatarUrl: `file://${path}?${this.state.avatarKey + 1}`,
+                        avatarKey: this.state.avatarKey + 1
                     });
                 }
             });
@@ -58,7 +60,8 @@ export default class ConversationsView extends Component {
             return;
         
         this.setState({
-            avatarUrl: `file://${path}`
+            avatarUrl: `file://${path}?${this.state.avatarKey + 1}`,
+            avatarKey: this.state.avatarKey + 1
         });
     }
 

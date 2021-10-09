@@ -11,9 +11,9 @@ import QRCode from "react-native-qrcode-svg";
 interface SelfProfileViewState {
     avatarUrl: string;
     qrCodeVisible: boolean;
+    key: number;
 };
 
-// TODO: Profile picture does not update once set. Maybe because the path is the same?
 export default class SelfProfileView extends React.Component {
     private navigation: any;
     private jid: string;
@@ -27,7 +27,8 @@ export default class SelfProfileView extends React.Component {
         
         this.state = {
             avatarUrl: "",
-            qrCodeVisible: false
+            qrCodeVisible: false,
+            key: 0
         };
 
         const avatarCache = AppRepository.getInstance().getAvatarCache();
@@ -36,7 +37,8 @@ export default class SelfProfileView extends React.Component {
                 if (hasAvatar) {
                     const path = (await avatarCache.getAvatar(AppRepository.getInstance().getXMPPClient(), this.jid)).getValue();
                     this.setState({
-                        avatarUrl: `file://${path}`
+                        avatarUrl: `file://${path}?${this.state.key + 1}`,
+                        key: this.state.key + 1
                     });
                 }
             });
@@ -52,7 +54,8 @@ export default class SelfProfileView extends React.Component {
             return;
         
         this.setState({
-            avatarUrl: `file://${path}`
+            avatarUrl: `file://${path}?${this.state.key + 1}`,
+            key: this.state.key + 1
         });
 
         // TODO: Actually publish it
