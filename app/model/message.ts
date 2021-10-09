@@ -16,6 +16,7 @@ export default class Message extends Model {
     @field("encryption") encryption: MessageEncryptionType;
     @text("oob_url") oobUrl: string; // Optional
     @text("thread_id") threadId: string;
+    @text("parent_thread_id") parentThreadId: string;
 
     /**
      * Returns true if the message is to be treated as a sent/received image, video, file, ...
