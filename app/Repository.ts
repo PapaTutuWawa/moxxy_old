@@ -23,6 +23,7 @@ import RosterItem from "./model/rosteritem";
 import { UserData } from "../data/User";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { VCardTemp, VCardTempPhoto } from "stanza/protocol";
+import { tsMethodSignature } from "@babel/types";
 
 export default class AppRepository {
     private static instance: AppRepository;
@@ -155,18 +156,21 @@ export default class AppRepository {
                 // TODO: Use [Image], [File], [Video]
                 const lastMessageText = isOOB ? "[Image]" : msg.body;
                 const timestamp = new Date().getTime();
-                console.log(lastMessageText);
-                let promiseChain = new Promise((res, rej) => res(null));
-                if (!hasConversation)
-                    promiseChain = promiseChain.then(async () => {
-                        let title = bareJid.split("@")[0]; // TODO: Maybe make this a bit safer.
-                        if (this.getRosterCache().inRoster(bareJid)) {
-                            const nickname = (await this.getRosterCache().getRosterItemByJid(bareJid)).nickname;
-                            if (nickname)
-                                title = nickname;
-                        }
+                console.log(`Got message "${msg.body}" from ${msg.from}`);
+                console.log(msg.stanzaIds);
 
-                        await this.getConversationCache().addConversation({
+                this.getDb().write(async () => {
+                    let title = bareJid.split("@")[0]; // TODO: Maybe make this a bit safer.
+                    if (this.getRosterCache().inRoster(bareJid)) {
+                        const nickname = (await this.getRosterCache().getRosterItemByJid(bareJid)).nickname;
+                        if (nickname)
+                            title = nickname;
+                    }
+
+                    const conditional = hasConversation ? [
+                        await this.getConversationCache().conversationPrepareNewMessageAdded(bareJid, timestamp, lastMessageText, isOOB, oobUrl, this.getOpenConversationJid() !== bareJid)
+                    ] : [
+                        this.getConversationCache().prepareAddConversation({
                             title,
                             jid: bareJid,
                             lastMessageText,
@@ -174,38 +178,24 @@ export default class AppRepository {
                             lastMessageOOB: isOOB,
                             unreadMessagesCount: 1,
                             type: ConversationType.DIRECT,
-                        });
-                    });
+                        }),
 
-                promiseChain = promiseChain.then(async () => {
-                    await this.getMessageCache().addMessage({
-                        body: msg.body,
-                        sentIn: bareJid,
-                        sent: false,
-                        timestamp: timestamp,
-                        stanzaId: msg.stanzaIds["id"],
-                        encryption: MessageEncryptionType.NONE, // TODO
-                        oobUrl: isOOB ? msg.links[0].url : "",
-                        threadId: msg.thread || "",
-                        parentThreadId: msg.parentThread || "",
-                    });
+                    ];
+                    await this.getDb().batch(
+                        await this.getMessageCache().prepareAddMessage({
+                            body: msg.body,
+                            sentIn: bareJid,
+                            sent: false,
+                            timestamp: timestamp,
+                            stanzaId: msg.stanzaIds["id"],
+                            encryption: MessageEncryptionType.NONE, // TODO
+                            oobUrl: isOOB ? msg.links[0].url : "",
+                            threadId: msg.thread || "",
+                            parentThreadId: msg.parentThread || "",
+                        }),
+                        ...conditional
+                    );
                 });
-
-                if (hasConversation)
-                    // Prevent us from updating the list item twice
-                    promiseChain.then(async () => {
-                        console.log(`Open JID: ${this.getOpenConversationJid()}`);
-                        await this.getConversationCache().conversationNewMessageAdded(bareJid, timestamp, lastMessageText, isOOB, oobUrl, this.getOpenConversationJid() !== bareJid);
-                    });
-                else
-                    promiseChain.then(async () => {
-                        const avatarPath = await this.getAvatarCache().getAvatar(this.getXMPPClient(), bareJid);
-                        if (avatarPath)
-                            await this.getConversationCache().updateAvatarUrl(bareJid, `file://${avatarPath}`);
-                    });
-
-                console.log(`Got message "${msg.body}" from ${msg.from}`);
-                console.log(msg.stanzaIds);
             });
 
             if ("smState" in args) {
@@ -229,27 +219,30 @@ export default class AppRepository {
         if (this.getAvatarCache().hasRunningRequest(bareJid))
             return;
 
-        const data = await this.getAvatarCache().getAvatar(this.getXMPPClient(), bareJid);
-        if (!data.hasValue()) {
-            switch (type) {
-                case "roster":
-                    await this.getRosterCache().setNoAvatarForJid(bareJid);
-                    break;
-                case "conversation":
-                    await this.getConversationCache().setNoAvatarForJid(bareJid);
-                    break;
+        try {
+            const data = await this.getAvatarCache().getAvatar(this.getXMPPClient(), bareJid);
+            if (!data.hasValue()) {
+                switch (type) {
+                    case "roster":
+                        await this.getRosterCache().setNoAvatarForJid(bareJid);
+                        break;
+                    case "conversation":
+                        await this.getConversationCache().setNoAvatarForJid(bareJid);
+                        break;
+                }
+            } else {
+                switch (type) {
+                    case "roster":
+                        await this.getRosterCache().updateRosterItemAvatarUrl(bareJid, `file://${data.getValue()}`);
+                        break;
+                    case "conversation":
+                        await this.getConversationCache().updateAvatarUrl(bareJid, `file://${data.getValue()}`);
+                        break;
+                }
             }
-        } else {
-            switch (type) {
-                case "roster":
-                    await this.getRosterCache().updateRosterItemAvatarUrl(bareJid, `file://${data.getValue()}`);
-                    break;
-                case "conversation":
-                    await this.getConversationCache().updateAvatarUrl(bareJid, `file://${data.getValue()}`);
-                    break;
-            }
-        }
-            
+        } catch (e) {
+            await this.getRosterCache().setNoAvatarForJid(bareJid);
+        }  
     }
 
     // TODO: Also send a presence subscription request

@@ -89,6 +89,25 @@ export default class ConversationCache extends EventEmitter {
         });
     }
 
+    public conversationPrepareNewMessageAdded = async (jid: string, timestamp: number, messageBody: string, isOOB: boolean, oobUrl: string, incrementUnread: boolean = false) => {
+        const conversation = await this.getConversationByJid(jid);
+        if (!conversation.hasValue()) {
+            console.log(`conversationNewMessageAdded: No conversation for ${jid}!`);
+            return;
+        }
+
+        return conversation.getValue().prepareUpdate(conversation => {
+            conversation.lastMessageText = messageBody;
+            conversation.lastMessageTimestamp = timestamp;
+            conversation.lastMessageOOB = isOOB;
+            conversation.open = true;
+
+            this.cache[jid] = conversation;
+            this.emit("conversationUpdated", conversation);
+        });
+    }
+
+
     /**
      * Returns this JIDs of known conversations
      */
@@ -118,6 +137,32 @@ export default class ConversationCache extends EventEmitter {
         await conversation.getValue().setOpen(open);
         // NOTE: Not sure, but this messes with ProfileView upon closing
         //this.emit("conversationUpdated", conversation);
+    }
+
+    public prepareAddConversation = (conversation: any, afterAdd?: (conversation: Conversation) => void) => {
+        return this.database.get(Conversation.table).prepareCreate((convo: Conversation) => {
+            convo.title = conversation.title;
+            convo.jid = conversation.jid;
+            convo.lastMessageText = conversation.lastMessageText;
+            convo.lastMessageTimestamp = conversation.lastMessageTimestamp;
+            convo.lastMessageOOB = conversation.lastMessageOOB;
+            convo.unreadMessagesCount = conversation.unreadMessagesCount;
+            convo.avatarUrl = conversation.avatarUrl;
+            convo.hasAvatar = true;
+            convo.type = conversation.type;
+            convo.open = true; // TODO: Maybe take from the parameter
+            convo.media = [];
+
+            // NOTE: It feels really weird to do it here, but we cannot change
+            //       model attributes outside of create/...
+            // TODO: Maybe put it asynchronously into the cache to prevent blocking
+            //       this callback
+            this.cache[conversation.jid] = convo;
+            if (afterAdd)
+                afterAdd(convo);
+
+            this.emit("conversationAdd", convo);
+        });
     }
 
     public addConversation = async (conversation: any, afterAdd?: (conversation: Conversation) => void): Promise<void> => {
