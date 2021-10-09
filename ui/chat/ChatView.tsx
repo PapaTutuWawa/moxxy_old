@@ -106,6 +106,8 @@ class ChatView extends Component {
         if (this.firstLoadDone) {
             this.messageList.scrollToEnd({ animated: false });
             this.jumpToEnd = true;
+            if (this.conversation.unreadMessagesCount > 0)
+                AppRepository.getInstance().getConversationCache().markAsRead(this.conversationJid);
         } else if (this.firstLoadDone && this.jumpToEnd) {
             this.messageList.scrollToEnd({ animated: true });
         }
@@ -141,7 +143,7 @@ class ChatView extends Component {
             .addMessage(msg)
             .then(async () => {
                 // TODO: OOB
-                await this.conversation.updateLastMessage(body, timestamp, false, "", false);
+                await this.conversation.updateLastMessage(body, timestamp, false, "", false, true);
             });
         AppRepository.getInstance().getXMPPClient()
             .sendMessage({
