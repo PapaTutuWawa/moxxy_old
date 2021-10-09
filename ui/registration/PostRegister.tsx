@@ -6,12 +6,16 @@ import Collapsible from "react-native-collapsible";
 import { Toggle } from "@ui-kitten/components";
 import { backgroundStyle } from "../helpers";
 import { Routes } from "../constants";
+import ImageCropPicker from "react-native-image-crop-picker";
+import AppRepository from "../../app/Repository";
 
 interface PostRegisterComponentState {
     showPassword: boolean;
     showSettings: boolean;
+    avatarUrl: string;
 }
 
+// TODO: Profile picture does not update once set. Maybe because the path is the same?
 export default class PostRegisterComponent extends React.Component {
     state: PostRegisterComponentState;
     private username: string;
@@ -28,7 +32,8 @@ export default class PostRegisterComponent extends React.Component {
 
         this.state = {
             showPassword: false,
-            showSettings: false
+            showSettings: false,
+            avatarUrl: ""
         }
     }
 
@@ -44,16 +49,35 @@ export default class PostRegisterComponent extends React.Component {
         })
     }
 
+    openCropPicker = () => {
+        ImageCropPicker.openPicker({
+            width: 300,
+            height: 300,
+            cropping: true,
+            includeBase64: true,
+            writeTempFile: false,
+            cropperCircleOverlay: true
+        }).then(async (image) => {
+            const path = await AppRepository.getInstance().getAvatarCache().setAvatar(image.data, this.jid);
+            this.setState({
+                avatarUrl: `file://${path}`
+            });
+
+            // TODO: Actually set the avatar
+        });
+    }
+
     render() {
+        const avatarDisplayProps = this.state.avatarUrl ? {source: { uri: this.state.avatarUrl }} : {title: this.jid[0]};
         return (
             <View style={{ height: "100%", padding: 60, ...backgroundStyle(true) }}>
                 <View style={{ flexDirection: "row", justifyContent: "center", marginBottom: 10 }}>
                     <Text style={material.display2White}>This is you!</Text>
                 </View>
-                <TouchableOpacity onPress={() => {}}>
+                <TouchableOpacity onPress={this.openCropPicker}>
                     <View style={{ flexDirection: "row" }}>
                             <View style={{ marginLeft: 5, alignSelf: "center", flexDirection: "row" }}>
-                                <Avatar rounded size="medium" overlayContainerStyle={{backgroundColor: 'gray'}} title={this.username[0]}>
+                                <Avatar rounded size="medium" overlayContainerStyle={{backgroundColor: 'gray'}} {...avatarDisplayProps}>
                                     {/* TODO: Maybe work on the size of the icon */}
                                     <Avatar.Accessory type="font-awesome" name="pencil" color="white" size={16}/>
                                 </Avatar>
@@ -71,6 +95,7 @@ export default class PostRegisterComponent extends React.Component {
                     <Button type="clear" title="Show password" onPress={() => this.togglePassword()}/>
                     <Collapsible collapsed={!this.state.showPassword}>
                         <View style={{ flexDirection: "row", justifyContent: "center" }}>
+                            {/* TODO: Use actual password */}
                             <Text style={material.body1White}>abc123Welt</Text>
                         </View>
                     </Collapsible>

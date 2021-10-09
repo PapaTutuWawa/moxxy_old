@@ -38,6 +38,12 @@ export class AvatarCache extends EventEmitter {
         this.isInitialized = true;
     }
 
+    public hasAvatar = async(bareJid: string): Promise<boolean> => {
+        await this.loadAvatars();
+
+        return bareJid in this.cache;
+    }
+
     public setAvatar = async (data: string, bareJid: string) => {
         if (!this.isInitialized)
             await this.loadAvatars();

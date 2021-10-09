@@ -128,6 +128,7 @@ export default function ChatBubble(message: Message, type: ConversationType, clo
                         }} size={16} name="lock" />
                     )
                 }
+                {/* TODO: Use Eva Icons "checkmark" and "done-all" with color to indicate sent to server, sent to device and read */}
             </View>
         </GenericBubble>
     );

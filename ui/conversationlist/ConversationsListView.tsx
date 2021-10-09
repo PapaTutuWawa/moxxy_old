@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { TouchableOpacity, View } from "react-native";
-import { FAB, Text } from "react-native-elements";
+import { Avatar, FAB, Text } from "react-native-elements";
 
 import Conversation from "../../app/model/conversation";
 
@@ -16,25 +16,50 @@ import { Icon } from "@ui-kitten/components";
 interface ConversationsViewState {
     conversations: Conversation[];
     key: number;
+    avatarUrl: string;
 };
 
+// TODO: Maybe subscribe to avatarSaved/avatarSet
+// TODO: Profile picture does not update once set. Maybe because the path is the same?
 export default class ConversationsView extends Component {
-    state: ConversationsViewState;
     private navigation: any;
+    private jid: string;
+    state: ConversationsViewState;
 
     constructor(props: any) {
         super(props);
 
         this.navigation = props.navigation;
+        this.jid = AppRepository.getInstance().getUserData().getValue().jid;
 
         this.state = {
             conversations: [],
-            key: 0
+            key: 0,
+            avatarUrl: ""
         };
 
         this.onUpdateConversation(null);
+        AppRepository.getInstance().getAvatarCache().hasAvatar(this.jid)
+            .then(async (hasAvatar) => {
+                if (hasAvatar) {
+                    const path = (await AppRepository.getInstance().getAvatarCache().getAvatar(AppRepository.getInstance().getXMPPClient(), this.jid)).getValue();
+                    this.setState({
+                        avatarUrl: `file://${path}`
+                    });
+                }
+            });
         AppRepository.getInstance().getConversationCache().on("conversationAdd", this.onNewConversation);
         AppRepository.getInstance().getConversationCache().on("conversationUpdated", this.onUpdateConversation);
+        AppRepository.getInstance().getAvatarCache().on("avatarSaved", this.onAvatarSaved);
+    }
+
+    onAvatarSaved = ({jid, path}) => {
+        if (jid !== this.jid)
+            return;
+        
+        this.setState({
+            avatarUrl: `file://${path}`
+        });
     }
 
     onNewConversation = (conversation: Conversation) => {
@@ -58,12 +83,24 @@ export default class ConversationsView extends Component {
     componentWillUnmount = () => {
         AppRepository.getInstance().getConversationCache().removeListener("conversationAdd", this.onNewConversation);
         AppRepository.getInstance().getConversationCache().removeListener("conversationUpdated", this.onUpdateConversation);
+        AppRepository.getInstance().getAvatarCache().removeListener("avatarSaved", this.onAvatarSaved);
     }
 
     render() {
+        const avatarDisplayProps = this.state.avatarUrl ? {source: { uri: this.state.avatarUrl }} : {title: this.jid[0]};
         return (
             <View style={{ height: "100%", ...backgroundStyle() }}>
-                <FlatHeader navigation={this.navigation} showBackButton={false} title="Moxxy">
+                {/* TODO: Header content is not centered */}
+                <FlatHeader navigation={this.navigation} showBackButton={false}>
+                    <View style={{ justifyContent: "center", marginLeft: 10 }}>
+                        <TouchableOpacity onPress={() => this.navigation.navigate(Routes.SELFPROFILE)}>
+                            <Avatar rounded size="small" overlayContainerStyle={{backgroundColor: 'gray'}} {...avatarDisplayProps} />
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={{ justifyContent: "center" }}>
+                        <Text style={[material.headlineWhite, {marginLeft: 10 }]}>Moxxy</Text>
+                    </View>
                     {/* TODO: Put own avatar in the FlatHeader which redirects to your own profile page */}
                     <View style={{ flex: 1}} />
                     <View style={{ justifyContent: "center", marginRight: 10 }}>

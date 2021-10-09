@@ -20,6 +20,8 @@ import DiscoCache from "./DiscoCache";
 import RosterCache from "./RosterCache";
 import { AvatarCache } from "./AvatarCache";
 import RosterItem from "./model/rosteritem";
+import { UserData } from "../data/User";
+import Maybe from "./types/maybe";
 
 export default class AppRepository {
     private static instance: AppRepository;
@@ -37,6 +39,14 @@ export default class AppRepository {
     }
     public setXMPPClient(client: Agent) {
         this.client = client;
+    }
+
+    private userData: Maybe<UserData> = new Maybe();
+    public setUserData(data: UserData) {
+        this.userData = new Maybe(data);
+    }
+    public getUserData() {
+        return this.userData;
     }
 
     private onceConnected: boolean;
@@ -69,6 +79,13 @@ export default class AppRepository {
                     this.getRosterCache().setRoster(roster.items);
                 });
 
+                // TODO
+                this.setUserData({
+                    jid: args.jid,
+                    avatarUrl: "",
+                    hasAvatar: true
+                });
+
                 onConnect();
             });
             this.client.on("stream:management:resumed", obj => {
@@ -86,6 +103,13 @@ export default class AppRepository {
                     //       Note that we don't have to do this each login, just when we don't have them, as updates
                     //       are handled by the "avatar" event.
                     //getAvatar(this.client, "papatutuwawa@polynom.me");
+
+                    // TODO
+                    this.setUserData({
+                        jid: args.jid,
+                        avatarUrl: "",
+                        hasAvatar: true
+                    });
 
                     onConnect();
                 }

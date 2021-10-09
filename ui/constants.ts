@@ -8,7 +8,8 @@ export enum Routes {
     SETTINGS = "Settings",
     CONVERSATIONLIST = "ConversationsList",
     PRESTART = "PreStart",
-    LICENSES = "Licenses"
+    LICENSES = "Licenses",
+    SELFPROFILE = "SelfProfile"
 };
 
 export enum Corners {

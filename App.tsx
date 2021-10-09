@@ -9,9 +9,6 @@ import { ApplicationProvider, IconRegistry } from '@ui-kitten/components';
 import * as eva from "@eva-design/eva";
 import { EvaIconsPack } from "@ui-kitten/eva-icons";
 import SettingsView from './ui/settings/SettingsView';
-import { useNavigation } from '@react-navigation/native';
-import { TouchableOpacity } from 'react-native';
-import { Icon } from 'react-native-elements';
 
 import ProfileView from './ui/chat/ProfileView';
 import StartView from './ui/start/StartView';
@@ -21,13 +18,14 @@ import NewConversationView from './ui/newconversation/NewConversation';
 import PreStartView from './ui/prestart/PreStartView';
 import LicensesView from './ui/licenses/LicensesView';
 import NewContactView from './ui/newcontact/NewContactView';
+import SelfProfileView from './ui/selfprofile/SelfProfileView';
 
 import { Routes } from "./ui/constants";
 
 const Stack = createNativeStackNavigator();
 
-// TODO: ConversationList does not update when we have updated the lastMessageText
 // TODO: Set statusbar color depending on the color scheme
+// TODO: The self-profile is pretty janky. REWORK!
 const App = () => {
   //const isDarkMode = useColorScheme() === "dark";
   const isDarkMode = true;
@@ -89,6 +87,12 @@ const App = () => {
                   headerShown: false
                 }}
                 component={LicensesView} />
+              <Stack.Screen
+                name={Routes.SELFPROFILE}
+                options={{
+                  headerShown: false
+                }}
+                component={SelfProfileView} />
             </Stack.Navigator>
           </NavigationContainer>
         </ApplicationProvider>

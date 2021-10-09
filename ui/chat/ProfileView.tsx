@@ -8,13 +8,21 @@ import FlatHeader from "../FlatHeader";
 import { Button, Icon } from "@ui-kitten/components";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Routes } from "../constants";
+import Maybe from "../../app/types/maybe";
+import { Avatar } from "react-native-elements";
+
+interface ConversationProfileViewState {
+    conversation: Conversation | null;
+    inRoster: Maybe<boolean>;
+}
 
 // TODO: Show different things based on whether we come from a DM chat or GC. Also differentiate between
 //       other users and ourself
 export default class ConversationProfileView extends React.Component {
     private conversationJid: string;
     private navigation: any;
-    state: { conversation: Conversation | null };
+    // TODO: Use Maybe<Conversation>
+    state: ConversationProfileViewState;
 
     constructor(props: any) {
         super(props);
@@ -23,7 +31,8 @@ export default class ConversationProfileView extends React.Component {
         this.navigation = props.navigation;
 
         this.state = {
-            conversation: null
+            conversation: null,
+            inRoster: new Maybe()
         };
 
         AppRepository.getInstance().getConversationCache()
@@ -39,6 +48,13 @@ export default class ConversationProfileView extends React.Component {
                 });
 
                 AppRepository.getInstance().getConversationCache().on("conversationUpdated", this.onConversationUpdated);
+            });
+        AppRepository.getInstance().getRosterCache()
+            .getRoster()
+            .then((roster) => {
+                this.setState({
+                    inRoster: new Maybe(AppRepository.getInstance().getRosterCache().inRoster(this.conversationJid)),
+                });
             });
     }
 
@@ -119,17 +135,10 @@ export default class ConversationProfileView extends React.Component {
                 <View style={{ flexDirection: "row" }}>
                     <FlatHeader navigation={this.navigation} fullWidth={false} />
                     <View style={{ flexDirection: "row", justifyContent: "center", width: "100%", paddingTop: 10 }}>
-                        <Image
-                            source={{ uri: this.state.conversation.avatarUrl}}
-                            resizeMode="cover"
-                            style={{
-                                height: 160,
-                                width: 160,
-                                borderTopRightRadius: 75,
-                                borderTopLeftRadius: 75,
-                                borderBottomLeftRadius: 75,
-                                borderBottomRightRadius: 75
-                            }} />
+                        <Avatar
+                            rounded
+                            size="xlarge"
+                            source={{ uri: this.state.conversation.avatarUrl }} />
                     </View>
                 </View>
 
@@ -159,10 +168,31 @@ export default class ConversationProfileView extends React.Component {
 
                 <View style={{ flex: 1}} />
 
-                <View style={{ flexDirection: "row", justifyContent: "center", marginTop: 20 }}>  
+                {/* TODO: Implement*/}
+                {/* TODO: Make this look prettier */}
+                {
+                    this.state.inRoster.hasValue() && (
+                        <View style={{ flexDirection: "row", justifyContent: "center", marginTop: 20 }}>  
+                            <View style={{ width: "80%" }}>
+                                <Button
+                                    status="basic"
+                                    appearance="ghost"
+                                    accessoryLeft={props => <Icon {...props} name="person-delete" />}
+                                    onPress={() => {}}>
+                                    {
+                                        this.state.inRoster.getValue() ? "Remove as contact" : "Add as contact"
+                                    }
+                                </Button>
+                            </View>
+                        </View>
+                    )
+                }
+
+                <View style={{ flexDirection: "row", justifyContent: "center" }}>  
                     <View style={{ width: "80%" }}>
                         <Button
                             status="warning"
+                            appearance="ghost"
                             accessoryLeft={props => <Icon {...props} name="close" />}
                             onPress={this.closeConversation}>
                             Close chat
@@ -170,9 +200,13 @@ export default class ConversationProfileView extends React.Component {
                     </View>
                 </View>
 
-                <View style={{ flexDirection: "row", justifyContent: "center", marginTop: 10, marginBottom: 20 }}>  
+                {/* TODO: Implement*/}
+                <View style={{ flexDirection: "row", justifyContent: "center", marginBottom: 20 }}>  
                     <View style={{ width: "80%" }}>
-                        <Button status="danger" accessoryLeft={props => <Icon {...props} name="slash" />}>
+                        <Button
+                            status="danger"
+                            accessoryLeft={props => <Icon {...props} name="slash" />}
+                            appearance="ghost">
                             Block
                         </Button>
                     </View>
