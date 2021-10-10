@@ -26,6 +26,10 @@ const Stack = createNativeStackNavigator();
 
 // TODO: Set statusbar color depending on the color scheme
 // TODO: The self-profile is pretty janky. REWORK!
+// TODO: Refactor ALL caches as they are not neccessary. WatermelonDB already does caching.
+// TODO: Also use WatermelonDB's synchronization code for our messages
+//       => Have a background task running every n minutes if we have unsent messages and try to send them
+// TODO: Use WatermelonDB relations instead of adding metadata ourself
 const App = () => {
   //const isDarkMode = useColorScheme() === "dark";
   const isDarkMode = true;
