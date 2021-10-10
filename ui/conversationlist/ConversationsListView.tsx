@@ -12,6 +12,10 @@ import FlatHeader from "../FlatHeader";
 import { material } from "react-native-typography";
 import { Icon, Popover } from "@ui-kitten/components";
 
+function conversationSortFunc(a: Conversation, b: Conversation) {
+    return b.lastMessageTimestamp - a.lastMessageTimestamp;
+}
+
 interface ConversationsViewState {
     conversations: Conversation[];
     key: number;
@@ -60,7 +64,7 @@ export default class ConversationsView extends Component {
 
     onNewConversation = (conversation: Conversation) => {
         this.setState({
-            conversations: this.state.conversations.concat(conversation),
+            conversations: this.state.conversations.concat(conversation).sort(conversationSortFunc),
             key: this.state.key + 1
         });
     }
@@ -70,7 +74,7 @@ export default class ConversationsView extends Component {
             .getConversations()
             .then(conversations => {
                 this.setState({
-                    conversations,
+                    conversations: conversations.sort(conversationSortFunc),
                     key: this.state.key + 1
                 })
             });
