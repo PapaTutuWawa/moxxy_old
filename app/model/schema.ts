@@ -30,7 +30,8 @@ export default appSchema({
                 { name: "encryption", type: "number" },
                 { name: "oob_url", type: "string" },
                 { name: "thread_id", type: "string" },
-                { name: "parent_thread_id", type: "string" }
+                { name: "parent_thread_id", type: "string" },
+                { name: "edited", type: "boolean" }
             ]
         }),
         tableSchema({

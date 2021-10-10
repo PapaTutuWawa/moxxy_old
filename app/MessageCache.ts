@@ -80,6 +80,7 @@ export default class MessageCache extends EventEmitter {
                 message.oobUrl = msg.oobUrl || "";
                 message.threadId = msg.threadId || "";
                 message.parentThreadId = msg.parentThreadId || "";
+                message.isEdited = false;
 
                 // NOTE: It feels really weird to do it here, but we cannot change
                 //       model attributes outside of create/...

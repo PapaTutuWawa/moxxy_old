@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, View, ActivityIndicator, TouchableOpacity } from "react-native";
-import { Icon } from "react-native-elements/dist/icons/Icon";
+import { Icon } from "react-native-elements";
 import { Image } from "react-native-elements";
 
 import { MessageContentType, MessageEncryptionType } from "../../data/Message";
@@ -46,7 +46,23 @@ function renderMessageContent(message: Message, start: boolean, end: boolean, be
                 paddingRight: 10,
                 paddingTop: 5
             }}>
-                <Text style={{ color: "white" }}>{message.body}</Text>
+                {
+                    message.body.split("\n").map(line => {
+                        const isQuoteLine = line.startsWith("> ");
+                        if (isQuoteLine)
+                            line = line.substring(2);
+
+                        return (
+                            <Text key={line} 
+                                style={{
+                                    color: isQuoteLine ? "gray" : "white",
+                                    ...(isQuoteLine ? { borderLeftColor: "white" } : {}),
+                                    borderLeftWidth: isQuoteLine ? 2 : 0,
+                                    paddingLeft: isQuoteLine ? 10 : 0
+                            }}>{line.replace("> ", "")}</Text>
+                        );
+                    })
+                }
             </View>
         );
     }
@@ -126,6 +142,13 @@ export default function ChatBubble(message: Message, type: ConversationType, clo
                         <Icon style={{
                             marginLeft: 5
                         }} size={16} name="lock" />
+                    )
+                }
+                {
+                    message.isEdited && (
+                        <Icon style={{
+                            marginLeft: 5
+                        }} size={16} name="edit" />
                     )
                 }
                 {/* TODO: Use Eva Icons "checkmark" and "done-all" with color to indicate sent to server, sent to device and read */}
