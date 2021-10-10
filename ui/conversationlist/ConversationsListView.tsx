@@ -6,23 +6,24 @@ import Conversation from "../../app/model/conversation";
 
 import { backgroundStyle } from "../helpers";
 import ConversationsList from "./ConversationsList";
-import { PresenceType } from "../../data/Presence";
 import AppRepository from "../../app/Repository";
 import { Routes } from "../constants";
 import FlatHeader from "../FlatHeader";
 import { material } from "react-native-typography";
-import { Icon } from "@ui-kitten/components";
+import { Icon, Popover } from "@ui-kitten/components";
 
 interface ConversationsViewState {
     conversations: Conversation[];
     key: number;
     avatarUrl: string;
     avatarKey: number;
+    popoverVisible: boolean;
 };
 
 export default class ConversationsView extends Component {
     private navigation: any;
     private jid: string;
+    private verticalIconRef: any;
     state: ConversationsViewState;
 
     constructor(props: any) {
@@ -35,7 +36,8 @@ export default class ConversationsView extends Component {
             conversations: [],
             key: 0,
             avatarUrl: AppRepository.getInstance().getUserData().avatarUrl,
-            avatarKey: 0
+            avatarKey: 0,
+            popoverVisible: false
         };
 
         this.onUpdateConversation(null);
@@ -80,11 +82,25 @@ export default class ConversationsView extends Component {
         AppRepository.getInstance().getAvatarCache().removeListener("avatarSaved", this.onAvatarSaved);
     }
 
+    togglePopover = () => {
+        this.setState({
+            popoverVisible: !this.state.popoverVisible
+        });
+    }
+
     render() {
+        const renderIcon = () => {
+            return (
+                <TouchableOpacity
+                    onPress={() => this.togglePopover()}>
+                    <Icon style={{ width: 28, height: 28 }} name="more-vertical" fill="#fff" />
+                </TouchableOpacity>
+            );
+        }
+
         const avatarDisplayProps = this.state.avatarUrl ? {source: { uri: this.state.avatarUrl }} : {title: this.jid[0]};
         return (
             <View style={{ height: "100%", ...backgroundStyle() }}>
-                {/* TODO: Header content is not centered */}
                 <FlatHeader navigation={this.navigation} showBackButton={false}>
                     <View style={{ justifyContent: "center", marginLeft: 10 }}>
                         <TouchableOpacity onPress={() => this.navigation.navigate(Routes.SELFPROFILE)}>
@@ -98,10 +114,18 @@ export default class ConversationsView extends Component {
                     {/* TODO: Put own avatar in the FlatHeader which redirects to your own profile page */}
                     <View style={{ flex: 1}} />
                     <View style={{ justifyContent: "center", marginRight: 10 }}>
-                        <TouchableOpacity
-                            onPress={() => this.navigation.navigate(Routes.SETTINGS)}>
-                                <Icon style={{ width: 28, height: 28 }} name="more-vertical" fill="#fff" />
-                        </TouchableOpacity>
+                        <Popover
+                            visible={this.state.popoverVisible}
+                            onBackdropPress={this.togglePopover}
+                            anchor={renderIcon}
+                            style={{ paddingLeft: 10, paddingRight: 20, paddingBottom: 5, paddingTop: 5 }}>
+                            <TouchableOpacity onPress={() => {
+                                this.togglePopover();
+                                this.navigation.navigate(Routes.SETTINGS);
+                            }}>
+                                <Text style={material.headlineWhite}>Settings</Text>
+                            </TouchableOpacity>
+                        </Popover>
                     </View>
                 </FlatHeader>
                 <ConversationsList conversationsList={this.state.conversations} key={this.state.key} />
