@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
 
-// TODO: Write this into the database
+// TODO: Write this into the database as we don't get presence when resuming by SM
 export default class DiscoCache extends EventEmitter {
     private features: {[jid: string]: string[]};
 
@@ -24,5 +24,9 @@ export default class DiscoCache extends EventEmitter {
             return this.features[jid].indexOf(namespace) !== -1; 
         
         return false;
+    }
+
+    public supportsUserBlocking = (jid: string) => {
+        return this.supportsNamespace(jid, "urn:xmpp:blocking");
     }
 };

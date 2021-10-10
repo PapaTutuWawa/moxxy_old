@@ -9,11 +9,12 @@ import { Button, Icon } from "@ui-kitten/components";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Routes } from "../constants";
 import Maybe from "../../app/types/maybe";
-import { Avatar } from "react-native-elements";
+import { Avatar, Overlay } from "react-native-elements";
 
 interface ConversationProfileViewState {
     conversation: Conversation | null;
     inRoster: Maybe<boolean>;
+    blockingModalOpen: boolean;
 }
 
 // TODO: Show different things based on whether we come from a DM chat or GC. Also differentiate between
@@ -32,7 +33,8 @@ export default class ConversationProfileView extends React.Component {
 
         this.state = {
             conversation: null,
-            inRoster: new Maybe()
+            inRoster: new Maybe(),
+            blockingModalOpen: false,
         };
 
         AppRepository.getInstance().getConversationCache()
@@ -129,6 +131,19 @@ export default class ConversationProfileView extends React.Component {
         });
     }
 
+    toggleBlockingModal = () => {
+        this.setState({
+            blockingModalOpen: !this.state.blockingModalOpen
+        });
+    }
+
+    blockContact = () => {
+        this.toggleBlockingModal();
+
+        // TODO: Close conversation (Maybe even delete)
+        // TODO: Actually block the contact
+    }
+
     renderConversation = () => {
         return (
             <>
@@ -141,6 +156,20 @@ export default class ConversationProfileView extends React.Component {
                             source={{ uri: this.state.conversation.avatarUrl }} />
                     </View>
                 </View>
+
+                <Overlay isVisible={this.state.blockingModalOpen} onBackdropPress={this.toggleBlockingModal}>
+                    <Text>Do you want to block {this.state.conversation.title}?</Text>
+
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 20 }}>
+                        <Button status="danger">
+                            Yes
+                        </Button>
+
+                        <Button status="primary" onPress={this.toggleBlockingModal}>
+                            No
+                        </Button>
+                    </View>
+                </Overlay>
 
                 <View style={{ flexDirection: "row", justifyContent: "center"}}>  
                     <Text style={material.headlineWhite}>{this.state.conversation.title}</Text>
@@ -201,16 +230,21 @@ export default class ConversationProfileView extends React.Component {
                 </View>
 
                 {/* TODO: Implement*/}
-                <View style={{ flexDirection: "row", justifyContent: "center", marginBottom: 20 }}>  
-                    <View style={{ width: "80%" }}>
-                        <Button
-                            status="danger"
-                            accessoryLeft={props => <Icon {...props} name="slash" />}
-                            appearance="ghost">
-                            Block
-                        </Button>
-                    </View>
-                </View>
+                {
+                    AppRepository.getInstance().getDiscoCache().supportsUserBlocking(AppRepository.getInstance().getUserData().serverJid) && (
+                        <View style={{ flexDirection: "row", justifyContent: "center", marginBottom: 20 }}>  
+                            <View style={{ width: "80%" }}>
+                                <Button
+                                    status="danger"
+                                    accessoryLeft={props => <Icon {...props} name="slash" />}
+                                    appearance="ghost"
+                                    onPress={this.toggleBlockingModal}>
+                                    Block
+                                </Button>
+                            </View>
+                        </View>
+                    )
+                }
             </>
         );
     }
