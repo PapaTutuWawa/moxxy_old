@@ -91,6 +91,9 @@ class ChatView extends Component {
     }
 
     onConversationUpdate = (conversation) => {
+        if (conversation.jid !== this.conversationJid)
+            return;
+            
         this.conversation = conversation;
         // TODO: Put conversation into the state
         this.forceUpdate();
@@ -143,6 +146,7 @@ class ChatView extends Component {
             .addMessage(msg)
             .then(async () => {
                 // TODO: OOB
+                // TODO: This needs to go through the ConversationCache
                 await this.conversation.updateLastMessage(body, timestamp, false, "", false, true);
             });
         AppRepository.getInstance().getXMPPClient()
