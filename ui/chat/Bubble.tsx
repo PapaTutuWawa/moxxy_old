@@ -3,10 +3,11 @@ import {
     View, Image, TouchableOpacity
 } from "react-native";
 import { ConversationType } from '../../data/Conversation';
-import Message from "../../app/model/message";
+import { Message } from "../../app/model/message";
 import { Corners } from "../../ui/constants";
 
 // TODO: If it's the last bubble in the list, then it will be clipped by the view containing the input box
+// TODO: Merge with ChatBubble
 function GenericBubble(props: any) {
     const msg: Message = props.message;
     const type: ConversationType = props.type;

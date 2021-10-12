@@ -13,7 +13,7 @@ import ChatBubble from "./ChatBubble";
 import { PresenceType } from "../../data/Presence";
 import { backgroundStyle, badgeStatus } from "../helpers";
 import AppRepository from "../../app/Repository";
-import Message from "../../app/model/message";
+import { Message } from "../../app/model/message";
 import { uuid } from "stanza/Utils";
 import { MessageEncryptionType } from "../../data/Message";
 import Conversation from "../../app/model/conversation";

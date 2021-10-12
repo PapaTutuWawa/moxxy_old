@@ -2,7 +2,7 @@ import { Model } from "@nozbe/watermelondb";
 import { field, text, writer } from "@nozbe/watermelondb/decorators";
 import { MessageContentType, MessageEncryptionType, MessageQuotationType } from "../../data/Message";
 
-export default class Message extends Model {
+export class Message extends Model {
     static table = "messages";
 
     // TODO: Add a relation to a sender, once groupchats are a thing
@@ -49,4 +49,8 @@ export default class Message extends Model {
 
         return MessageQuotationType.NONE;
     }
+};
+
+export type MessageType = {
+    [K in keyof Message]: Message[K];
 };

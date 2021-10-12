@@ -4,7 +4,7 @@ import { Icon } from "react-native-elements";
 import { Image } from "react-native-elements";
 
 import { MessageContentType, MessageEncryptionType } from "../../data/Message";
-import Message from "../../app/model/message";
+import { Message } from "../../app/model/message";
 import GenericBubble from "./Bubble";
 import { ConversationType } from "../../data/Conversation";
 import { padNumber } from "../../ui/helpers";
