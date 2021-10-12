@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Avatar, FAB, Text } from "react-native-elements";
 
-import Conversation from "../../app/model/conversation";
+import { Conversation } from "../../app/model/conversation";
 
 import { backgroundStyle } from "../helpers";
 import ConversationsList from "./ConversationsList";
@@ -135,8 +135,8 @@ export default class ConversationsView extends Component {
                 <ConversationsList conversationsList={this.state.conversations} key={this.state.key} />
                 <FAB
                     placement="right" size="large" icon={{
-                        type: "font-awesome",
-                        name: "pencil",
+                        type: "materialcommunityicons",
+                        name: "message",
                         color: "white"
                     }}
                     onPress={() => this.navigation.navigate(Routes.NEWCONVERSATION)} />

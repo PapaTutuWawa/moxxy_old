@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Image, Text, ActivityIndicator } from "react-native";
-import Conversation from "../../app/model/conversation";
+import { Conversation } from "../../app/model/conversation";
 import { backgroundStyle } from "../helpers";
 import { material } from "react-native-typography";
 import AppRepository from "../../app/Repository";

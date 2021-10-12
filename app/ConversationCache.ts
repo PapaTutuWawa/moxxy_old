@@ -1,7 +1,6 @@
 import { Database, Q } from "@nozbe/watermelondb";
 import { EventEmitter } from "events";
-import { ConversationType } from "../data/Conversation";
-import Conversation from "./model/conversation";
+import { Conversation } from "./model/conversation";
 import Maybe from "./types/maybe";
 
 export default class ConversationCache extends EventEmitter {

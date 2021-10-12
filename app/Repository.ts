@@ -8,8 +8,8 @@ import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite'
 import { Database } from "@nozbe/watermelondb";
 
 import { AltConnection, discoverAltConnections } from "../xmpp/xep0156";
-import Conversation from "./model/conversation";
-import Message from "./model/message";
+import { Conversation } from "./model/conversation";
+import { Message } from "./model/message";
 import { PresenceType } from "stanza/Constants";
 import { MessageEncryptionType } from "../data/Message";
 import { hack__bareJid } from "../ui/helpers";
@@ -22,8 +22,8 @@ import { AvatarCache } from "./AvatarCache";
 import RosterItem from "./model/rosteritem";
 import { UserData } from "../data/User";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { VCardTemp, VCardTempPhoto } from "stanza/protocol";
-import { tsMethodSignature } from "@babel/types";
+
+import CapabilityDatabase from "../data/entity-caps.json";
 
 export default class AppRepository {
     private static instance: AppRepository;
@@ -59,18 +59,20 @@ export default class AppRepository {
     public getUserData() {
         return this.userData;
     }
-    public loadOrSetUserData = async (jid: string) => {
+    public loadOrSetUserData = async (jid: string, serverJid: string) => {
         const data = await AsyncStorage.getItem("@account_metadata");
         if (data !== null) {
             const obj = JSON.parse(data);
             this.setUserData({
                 jid,
+                serverJid,
                 avatarUrl: obj.avatarUrl,
                 hasAvatar: obj.hasAvatar
             });
         } else {
             this.setUserData({
                 jid,
+                serverJid,
                 avatarUrl: "",
                 hasAvatar: true
             });
@@ -100,23 +102,25 @@ export default class AppRepository {
                     type: PresenceType.Available
                 });
 
-                this.client.getDiscoInfo(args.jid).then((data: XMPP.Stanzas.DiscoInfoResult) => {
-                    this.getDiscoCache().setFeatures(hack__bareJid(args.jid), data.features);
+                const serverJid = hack__bareJid(args.jid).split("@")[1];
+                this.client.getDiscoInfo(serverJid).then((data: XMPP.Stanzas.DiscoInfoResult) => {
+                    this.getDiscoCache().setFeatures(serverJid, data.features);
                 });
 
                 this.client.getRoster().then((roster: XMPP.Stanzas.RosterResult) => {
                     this.getRosterCache().setRoster(roster.items);
                 });
 
-                await this.loadOrSetUserData(args.jid);
+                await this.loadOrSetUserData(args.jid, serverJid);
 
                 onConnect();
             });
             this.client.on("stream:management:resumed", async (obj) => {
                 if (!this.onceConnected) {
                     this.onceConnected = true;
-                    this.client.getDiscoInfo(args.jid).then((data: XMPP.Stanzas.DiscoInfoResult) => {
-                        this.getDiscoCache().setFeatures(hack__bareJid(args.jid), data.features);
+                    const serverJid = hack__bareJid(args.jid).split("@")[1];
+                    this.client.getDiscoInfo(serverJid).then((data: XMPP.Stanzas.DiscoInfoResult) => {
+                        this.getDiscoCache().setFeatures(serverJid, data.features);
                     });
 
                     this.client.getRoster().then((roster: XMPP.Stanzas.RosterResult) => {
@@ -128,18 +132,35 @@ export default class AppRepository {
                     //       are handled by the "avatar" event.
                     //getAvatar(this.client, "papatutuwawa@polynom.me");
 
-                    await this.loadOrSetUserData(args.jid);
+                    await this.loadOrSetUserData(args.jid, serverJid);
 
                     onConnect();
                 }
             });
-            this.getDiscoCache().on("featuresDiscovered", (jid: string) => {
-                const bareJid = hack__bareJid(args.jid);
-                if (jid !== bareJid)
-                    return;
 
-                if (this.getDiscoCache().supportsNamespace(bareJid, "urn:xmpp:push:0"))
-                    console.log("Push is supported. Enabling...");
+            this.client.on("presence", async (presence) => {
+                // TODO: If we receive a subscription request, open an empty chat
+                // TODO: Only do this if the bare JID is in the roster?
+                if (presence.legacyCapabilities) {
+                    console.log(presence.legacyCapabilities);
+
+                    // Check if we know any of these
+                    for (const cap of presence.legacyCapabilities) {
+                        if (cap.algorithm !== "sha-1")
+                            continue;
+                        
+                        if (cap.value in CapabilityDatabase && CapabilityDatabase[cap.value].hash === "sha-1") {
+                            this.getDiscoCache().setFeatures(presence.from, CapabilityDatabase[cap.value].features);
+                            return;
+                        }
+                    }
+
+                    // TODO: Error handling
+                    // TODO: Cache the mapping of EntCap-Hash and features
+                    // We did not find them
+                    const disco = await this.getXMPPClient().getDiscoInfo(presence.from);
+                    this.getDiscoCache().setFeatures(presence.from, disco.features);
+                }
             });
             this.client.on("raw:incoming", xml => console.log(`<-- ${xml}`));
             this.client.on("raw:outgoing", xml => console.log(`--> ${xml}`));

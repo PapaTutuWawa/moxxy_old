@@ -1,6 +1,6 @@
 import { Database, Q } from "@nozbe/watermelondb";
 import { EventEmitter } from "events";
-import Message from "./model/message";
+import { Message, MessageType } from "./model/message";
 
 export default class MessageCache extends EventEmitter {
     private cache: {[sentIn: string]: Message[]};
@@ -29,7 +29,7 @@ export default class MessageCache extends EventEmitter {
         return messages;
     }
 
-    public prepareAddMessage = async (msg: any) => {
+    public prepareAddMessage = async (msg: MessageType) => {
         // NOTE: This is to prevent the chat from only having one message if
         //       we receive a message before first trying to load them.
         if (!(msg.sentIn in this.cache)) {
@@ -61,7 +61,7 @@ export default class MessageCache extends EventEmitter {
         });
     }
 
-    public addMessage = async (msg: any): Promise<void> => {
+    public addMessage = async (msg: MessageType): Promise<void> => {
         // NOTE: This is to prevent the chat from only having one message if
         //       we receive a message before first trying to load them.
         if (!(msg.sentIn in this.cache)) {

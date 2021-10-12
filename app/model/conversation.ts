@@ -2,7 +2,7 @@ import { Model } from "@nozbe/watermelondb";
 import { field, text, json, writer } from "@nozbe/watermelondb/decorators";
 import { ConversationType } from "../../data/Conversation";
 
-export default class Conversation extends Model {
+export class Conversation extends Model {
     static table = "conversations";
 
     @text("title") title: string;
@@ -64,4 +64,8 @@ export default class Conversation extends Model {
             conversation.open = open;
         })
     }
+};
+
+export type ConversationType = {
+    [K in keyof Conversation]: Conversation[K];
 };

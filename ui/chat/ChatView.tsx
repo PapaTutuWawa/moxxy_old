@@ -16,7 +16,7 @@ import AppRepository from "../../app/Repository";
 import { Message } from "../../app/model/message";
 import { uuid } from "stanza/Utils";
 import { MessageEncryptionType } from "../../data/Message";
-import Conversation from "../../app/model/conversation";
+import { Conversation } from "../../app/model/conversation";
 import { Routes } from "../constants";
 import { material } from "react-native-typography";
 import FlatHeader from "../FlatHeader";

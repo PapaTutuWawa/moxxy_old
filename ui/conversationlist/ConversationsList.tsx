@@ -8,7 +8,7 @@ import { Avatar, Text, Badge, Icon } from "react-native-elements";
 import { useNavigation } from "@react-navigation/native";
 import { PresenceType } from "../../data/Presence";
 import { badgeStatus, padNumber } from "../helpers";
-import Conversation from "../../app/model/conversation";
+import { Conversation } from "../../app/model/conversation";
 import { Routes } from "../constants";
 import AppRepository from "../../app/Repository";
 import { material } from "react-native-typography";
