@@ -1,5 +1,7 @@
 # Moxxy
 
+NOTE: I abandoned moxxy due to various technical issues with React Native and its libraries. I am, however, currently working on its successor project: MoxxyV2!
+
 Moxxy is (or maybe will be) an experimental XMPP client that tries to be as user-friendly and modern (looking)
 as possible to minimise friction for users coming from "legacy" messenging services.
 
